@@ -52,29 +52,15 @@ def pearl(x,y,r):
     c.setFillColor(Color(1,1,1,alpha=.8));c.circle(x-r*.27,y+r*.32,r*.12,fill=1,stroke=0)
 
 def shell(cx,cy,r,rotation=0):
-    # A scallop with individually shaded nacre ribs and a scalloped rim.
-    c.saveState();c.translate(cx,cy);c.rotate(rotation)
-    n=13
-    for rib in range(n):
-        for j in range(12):
-            t0=(rib+j/12)/n; t1=(rib+(j+1)/12)/n
-            a0=math.radians(18+144*t0); a1=math.radians(18+144*t1)
-            def radius(t):
-                return r*(.97+.03*math.sin(math.pi*((t*n)%1)))
-            rr0,rr1=radius(t0),radius(t1)
-            light=math.sin(math.pi*(j+.5)/12)
-            c.setFillColor(Color(.84+.13*light,.91+.075*light,.95+.045*light))
-            p=c.beginPath();p.moveTo(0,0)
-            p.lineTo(rr0*math.cos(a0),rr0*math.sin(a0))
-            p.lineTo(rr1*math.cos(a1),rr1*math.sin(a1));p.close()
-            c.drawPath(p,fill=1,stroke=0)
-    c.setStrokeColor(HexColor('#CADFE8'));c.setLineWidth(.25)
-    for i in range(n+1):
-        a=math.radians(18+144*i/n)
-        p=c.beginPath();p.moveTo(0,0);p.curveTo(r*.22*math.cos(a),r*.38*math.sin(a),r*.7*math.cos(a),r*.74*math.sin(a),r*.97*math.cos(a),r*.97*math.sin(a));c.drawPath(p)
-    c.setFillColor(HexColor('#E1EDF2'));c.setStrokeColor(HexColor('#CADFE8'))
-    p=c.beginPath();p.moveTo(-r*.19,-r*.025);p.lineTo(0,r*.10);p.lineTo(r*.19,-r*.025);p.close();c.drawPath(p,fill=1,stroke=1)
+    # Smooth, rounded AI-generated nacre shell with a transparent background.
+    c.saveState()
+    c.translate(cx, cy + r * .42)
+    c.rotate(rotation)
+    side = r * 1.95
+    c.drawImage(str(ROOT/'assets/soft-shell-cutout.png'),
+                -side/2, -side/2, side, side, mask='auto')
     c.restoreState()
+
 
 def base(num=None):
     c.drawImage(BG,0,0,W,H)
