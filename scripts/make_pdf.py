@@ -1,6 +1,8 @@
 """Build the blue mother-of-pearl zodiac booklet. Run from any directory."""
 from pathlib import Path
 import json
+import numpy as np
+from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
@@ -17,7 +19,16 @@ MUTED = HexColor('#5A8198')
 pdfmetrics.registerFont(TTFont('Display', str(ROOT/'assets/CormorantGaramond.ttf')))
 pdfmetrics.registerFont(TTFont('Body', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 
-BG=ImageReader(str(ROOT/'assets/pearl-ocean-background.jpg'))
+def blue_background():
+    # Non-destructive cool-blue grade; retain original reference-inspired artwork.
+    image = Image.open(ROOT/'assets/pearl-ocean-background.jpg').convert('RGB')
+    rgb = np.asarray(image, dtype=float) / 255
+    luminance = rgb @ np.array([.2126, .7152, .0722])
+    blue = luminance[..., None] * np.array([.85, .965, 1.12])
+    graded = .38 * rgb + .62 * blue
+    return ImageReader(Image.fromarray(np.uint8(np.clip(graded, 0, 1) * 255)))
+
+BG=blue_background()
 c=canvas.Canvas(str(OUT), pagesize=(W,H), pageCompression=1)
 c.setTitle('Луна в знаках зодиака')
 c.setAuthor('')
@@ -40,7 +51,7 @@ def base(num=None):
     c.drawImage(BG,0,0,W,H)
     if num:
         # A translucent ivory-blue reading panel keeps the rich art off the text.
-        c.setFillColor(Color(.975,.99,1,alpha=.91))
+        c.setFillColor(Color(.95,.978,1,alpha=.91))
         c.setStrokeColor(Color(1,1,1,alpha=.95))
         c.setLineWidth(.8)
         c.roundRect(34,246,W-68,536,18,stroke=1,fill=1)
