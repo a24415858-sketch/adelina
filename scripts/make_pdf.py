@@ -52,12 +52,12 @@ def pearl(x,y,r):
     c.setFillColor(Color(1,1,1,alpha=.8));c.circle(x-r*.27,y+r*.32,r*.12,fill=1,stroke=0)
 
 def shell(cx,cy,r,rotation=0):
-    # Smooth, rounded AI-generated nacre shell with a transparent background.
+    # Reference-inspired AI-generated spiral nacre shell with a transparent background.
     c.saveState()
     c.translate(cx, cy + r * .42)
     c.rotate(rotation)
     side = r * 1.95
-    c.drawImage(str(ROOT/'assets/soft-shell-cutout.png'),
+    c.drawImage(str(ROOT/'assets/spiral-shell-cutout.png'),
                 -side/2, -side/2, side, side, mask='auto')
     c.restoreState()
 
