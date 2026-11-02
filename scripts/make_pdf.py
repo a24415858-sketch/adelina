@@ -88,8 +88,8 @@ x, y = x / w, y / h
 glow = .89 * np.exp(-((x-.5)/.65)**4 - ((y-.135)/.115)**4)
 arr = arr*(1-glow[...,None]) + np.array([239,248,255])*glow[...,None]
 c.drawImage(ImageReader(Image.fromarray(np.uint8(np.clip(arr,0,255)))),0,0,W,H)
-center(719,'Луна',size=88,color=HexColor('#25465C'))
-center(669,'в знаках зодиака',size=39,color=HexColor('#25465C'))
+center(719,'Луна',size=88,color=HexColor('#579DD3'))
+center(669,'в знаках зодиака',size=39,color=HexColor('#579DD3'))
 c.setStrokeColor(Color(.76,.73,.62,alpha=.8));c.setLineWidth(.6)
 c.line(W/2-27,647,W/2+27,647)
 c.showPage()
