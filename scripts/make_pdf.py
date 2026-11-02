@@ -24,10 +24,12 @@ def blue_background():
     image = Image.open(ROOT/'assets/pearl-ocean-background.jpg').convert('RGB')
     hsv = np.asarray(image.convert('HSV'), dtype=float).copy()
     hue, saturation = hsv[..., 0] / 255, hsv[..., 1] / 255
-    # Shift aqua water toward soft sky blue; retain pink/gold shell reflections.
-    water = np.clip(1 - np.abs(hue - .49) / .13, 0, 1)
-    hsv[..., 0] = np.clip(hsv[..., 0] + water * 14, 0, 255)
-    hsv[..., 1] = np.clip(hsv[..., 1] * 1.22 + water * 5, 0, 255)
+    # Map green, mint and cyan directly to sky blue rather than partially rotating aqua.
+    water = np.clip((hue - .15) / .08, 0, 1) * np.clip((.64 - hue) / .04, 0, 1)
+    water = water * water * (3 - 2 * water)
+    target_hue = .595  # 214 degrees: blue, not cyan/turquoise.
+    hsv[..., 0] = 255 * (hue * (1 - water) + target_hue * water)
+    hsv[..., 1] = np.clip(hsv[..., 1] * (1.18 + water * .18), 0, 255)
     hsv[..., 2] = np.clip(hsv[..., 2] * 1.025 + 2, 0, 255)
     graded = Image.fromarray(hsv.astype('uint8'), mode='HSV').convert('RGB')
     return ImageReader(graded)
