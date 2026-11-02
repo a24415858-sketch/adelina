@@ -20,13 +20,17 @@ pdfmetrics.registerFont(TTFont('Display', str(ROOT/'assets/CormorantGaramond.ttf
 pdfmetrics.registerFont(TTFont('Body', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 
 def blue_background():
-    # Non-destructive cool-blue grade; retain original reference-inspired artwork.
+    # Grade the original artwork, keeping its colorful nacre rather than desaturating it.
     image = Image.open(ROOT/'assets/pearl-ocean-background.jpg').convert('RGB')
-    rgb = np.asarray(image, dtype=float) / 255
-    luminance = rgb @ np.array([.2126, .7152, .0722])
-    blue = luminance[..., None] * np.array([.85, .965, 1.12])
-    graded = .38 * rgb + .62 * blue
-    return ImageReader(Image.fromarray(np.uint8(np.clip(graded, 0, 1) * 255)))
+    hsv = np.asarray(image.convert('HSV'), dtype=float).copy()
+    hue, saturation = hsv[..., 0] / 255, hsv[..., 1] / 255
+    # Shift aqua water toward soft sky blue; retain pink/gold shell reflections.
+    water = np.clip(1 - np.abs(hue - .49) / .13, 0, 1)
+    hsv[..., 0] = np.clip(hsv[..., 0] + water * 14, 0, 255)
+    hsv[..., 1] = np.clip(hsv[..., 1] * 1.22 + water * 5, 0, 255)
+    hsv[..., 2] = np.clip(hsv[..., 2] * 1.025 + 2, 0, 255)
+    graded = Image.fromarray(hsv.astype('uint8'), mode='HSV').convert('RGB')
+    return ImageReader(graded)
 
 BG=blue_background()
 c=canvas.Canvas(str(OUT), pagesize=(W,H), pageCompression=1)
