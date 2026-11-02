@@ -1,6 +1,8 @@
 """Build the blue mother-of-pearl zodiac booklet. Run from any directory."""
 from pathlib import Path
 import json
+import numpy as np
+from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
@@ -64,11 +66,19 @@ def para(s,x,top,width,font,size,leading,color=INK):
     _,h=p.wrap(width,700);p.drawOn(c,x,top-h)
     return top-h
 
-base()
-panel(632,801)
-ornament(774)
-center(704,'Луна',size=68)
-center(660,'в знаках зодиака',size=36)
+# A seamless pearly glow, not a title card: artwork continues behind the lettering.
+cover = Image.open(ROOT/'assets/pearl-treasure-background.jpg').convert('RGB')
+arr = np.asarray(cover, dtype=float)
+h, w = arr.shape[:2]
+y, x = np.mgrid[0:h, 0:w]
+x, y = x / w, y / h
+glow = .89 * np.exp(-((x-.5)/.65)**4 - ((y-.135)/.115)**4)
+arr = arr*(1-glow[...,None]) + np.array([239,248,255])*glow[...,None]
+c.drawImage(ImageReader(Image.fromarray(np.uint8(np.clip(arr,0,255)))),0,0,W,H)
+center(719,'Луна',size=88,color=HexColor('#25465C'))
+center(669,'в знаках зодиака',size=39,color=HexColor('#25465C'))
+c.setStrokeColor(Color(.76,.73,.62,alpha=.8));c.setLineWidth(.6)
+c.line(W/2-27,647,W/2+27,647)
 c.showPage()
 
 data=json.loads((ROOT/'assets/content.json').read_text())
