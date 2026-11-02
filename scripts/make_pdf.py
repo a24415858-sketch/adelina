@@ -36,15 +36,26 @@ def pearl(x,y,r):
         c.circle(x+(1-t)*(-r*.24),y+(1-t)*r*.28,r*t,stroke=0,fill=1)
     c.setFillColor(Color(1,1,1,alpha=.8));c.circle(x-r*.27,y+r*.32,r*.12,fill=1,stroke=0)
 
-def base(num=None):
+def base():
     c.drawImage(BG,0,0,W,H)
-    if num:
-        # A translucent ivory-blue reading panel keeps the rich art off the text.
-        c.setFillColor(Color(.95,.978,1,alpha=.91))
-        c.setStrokeColor(Color(1,1,1,alpha=.95))
-        c.setLineWidth(.8)
-        c.roundRect(34,246,W-68,536,18,stroke=1,fill=1)
-        text(57,750,'Л У Н А  В  З Н А К А Х  З О Д И А К А',size=8,color=MUTED)
+
+def panel(bottom, top):
+    c.setFillColor(Color(.965,.984,1,alpha=.94))
+    c.setStrokeColor(Color(1,1,1,alpha=.95))
+    c.setLineWidth(.8)
+    c.roundRect(42,bottom,W-84,top-bottom,14,stroke=1,fill=1)
+    c.setStrokeColor(Color(.73,.72,.65,alpha=.6))
+    c.setLineWidth(.45)
+    c.roundRect(49,bottom+7,W-98,top-bottom-14,10,stroke=1,fill=0)
+
+def ornament(y):
+    c.setStrokeColor(HexColor('#B5B5A5'));c.setLineWidth(.5)
+    c.line(W/2-49,y,W/2-13,y);c.line(W/2+13,y,W/2+49,y)
+    pearl(W/2,y,4)
+
+def paragraph_height(s,width,font,size,leading):
+    p=Paragraph(s.replace(' - ',' — '),ParagraphStyle('measure',fontName=font,fontSize=size,leading=leading))
+    return p.wrap(width,700)[1]
 
 def para(s,x,top,width,font,size,leading,color=INK):
     # Typography only: spaced hyphens become em dashes; wording is unchanged.
@@ -54,29 +65,30 @@ def para(s,x,top,width,font,size,leading,color=INK):
     return top-h
 
 base()
-# Keep the rich reference-inspired shell composition visible below the title.
-c.setFillColor(Color(.96,.985,1,alpha=.84))
-c.roundRect(34,654,W-68,152,15,stroke=0,fill=1)
-center(731,'Луна',size=65)
-center(681,'в знаках зодиака',size=38)
+panel(632,801)
+ornament(774)
+center(704,'Луна',size=68)
+center(660,'в знаках зодиака',size=36)
 c.showPage()
 
 data=json.loads((ROOT/'assets/content.json').read_text())
 for idx,item in enumerate(data,1):
-    base(idx)
+    base()
     c.bookmarkPage(f'sign{idx}');c.addOutlineEntry(item['title'],f'sign{idx}',level=0)
-    text(57,699,item['title'],font='Display',size=40)
-    c.setStrokeColor(HexColor('#A6C5D6'));c.setLineWidth(.8);c.line(58,676,117,676)
-    top=650
-    top=para(item['paragraphs'][0],58,top,W-116,'Display',23,28)-24
-    for s in item['paragraphs'][1:-1]:
-        top=para(s,58,top,W-122,'Body',12,19)-13
-    top-=3
-    c.setStrokeColor(HexColor('#A4C2D3'));c.setLineWidth(1.2)
-    mother=item['paragraphs'][-1]
-    end=para(mother,71,top,W-142,'Body',12,19)
-    c.line(58,end+2,58,top-2)
-    assert end>265, (item['title'],end)
+    width=W-144
+    # Fit the frosted panel to this sign's actual text, exposing more of the artwork.
+    end=674-paragraph_height(item['paragraphs'][0],width,'Display',23,28)-22
+    for s in item['paragraphs'][1:]:
+        end-=paragraph_height(s,width,'Body',12.5,20)+14
+    bottom=end-18
+    assert bottom>285,(item['title'],bottom)
+    panel(bottom,792)
+    ornament(763)
+    center(716,item['title'],font='Display',size=39)
+    top=674
+    top=para(item['paragraphs'][0],72,top,width,'Display',23,28)-22
+    for s in item['paragraphs'][1:]:
+        top=para(s,72,top,width,'Body',12.5,20)-14
     c.showPage()
 c.save()
 print(OUT)
