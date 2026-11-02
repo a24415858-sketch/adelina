@@ -19,7 +19,20 @@ MUTED = HexColor('#5A8198')
 pdfmetrics.registerFont(TTFont('Display', str(ROOT/'assets/CormorantGaramond.ttf')))
 pdfmetrics.registerFont(TTFont('Body', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 
-BG=ImageReader(str(ROOT/'assets/pearl-treasure-background.jpg'))
+def sky_blue_artwork():
+    original = Image.open(ROOT/'assets/pearl-treasure-background.jpg').convert('RGB')
+    hsv = np.asarray(original.convert('HSV'), dtype=float).copy()
+    hue = hsv[..., 0] / 255
+    # Retain pink/gold nacre while turning mint and aqua water/gems into sky blue.
+    weight = np.clip((hue-.16)/.07,0,1) * np.clip((.65-hue)/.06,0,1)
+    weight = weight*weight*(3-2*weight)
+    hsv[..., 0] = 255 * (hue*(1-weight) + .59*weight)
+    hsv[..., 1] = np.clip(hsv[..., 1]*(1.06 + .13*weight),0,255)
+    hsv[..., 2] = np.clip(hsv[..., 2]*1.035 + 1,0,255)
+    return Image.fromarray(hsv.astype('uint8'), mode='HSV').convert('RGB')
+
+ARTWORK = sky_blue_artwork()
+BG=ImageReader(ARTWORK)
 c=canvas.Canvas(str(OUT), pagesize=(W,H), pageCompression=1)
 c.setTitle('Луна в знаках зодиака')
 c.setAuthor('')
@@ -67,7 +80,7 @@ def para(s,x,top,width,font,size,leading,color=INK):
     return top-h
 
 # A seamless pearly glow, not a title card: artwork continues behind the lettering.
-cover = Image.open(ROOT/'assets/pearl-treasure-background.jpg').convert('RGB')
+cover = ARTWORK.copy()
 arr = np.asarray(cover, dtype=float)
 h, w = arr.shape[:2]
 y, x = np.mgrid[0:h, 0:w]
