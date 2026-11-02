@@ -60,19 +60,19 @@ def shell(cx,cy,r,rotation=0):
             t0=(rib+j/12)/n; t1=(rib+(j+1)/12)/n
             a0=math.radians(18+144*t0); a1=math.radians(18+144*t1)
             def radius(t):
-                return r*(.94+.06*math.sin(math.pi*((t*n)%1)))
+                return r*(.97+.03*math.sin(math.pi*((t*n)%1)))
             rr0,rr1=radius(t0),radius(t1)
             light=math.sin(math.pi*(j+.5)/12)
-            c.setFillColor(Color(.65+.29*light,.79+.18*light,.87+.12*light))
+            c.setFillColor(Color(.84+.13*light,.91+.075*light,.95+.045*light))
             p=c.beginPath();p.moveTo(0,0)
             p.lineTo(rr0*math.cos(a0),rr0*math.sin(a0))
             p.lineTo(rr1*math.cos(a1),rr1*math.sin(a1));p.close()
             c.drawPath(p,fill=1,stroke=0)
-    c.setStrokeColor(HexColor('#89ABBD'));c.setLineWidth(.45)
+    c.setStrokeColor(HexColor('#CADFE8'));c.setLineWidth(.25)
     for i in range(n+1):
         a=math.radians(18+144*i/n)
-        p=c.beginPath();p.moveTo(0,0);p.curveTo(r*.22*math.cos(a),r*.38*math.sin(a),r*.7*math.cos(a),r*.74*math.sin(a),r*.94*math.cos(a),r*.94*math.sin(a));c.drawPath(p)
-    c.setFillColor(HexColor('#C4DCE6'));c.setStrokeColor(HexColor('#91B2C4'))
+        p=c.beginPath();p.moveTo(0,0);p.curveTo(r*.22*math.cos(a),r*.38*math.sin(a),r*.7*math.cos(a),r*.74*math.sin(a),r*.97*math.cos(a),r*.97*math.sin(a));c.drawPath(p)
+    c.setFillColor(HexColor('#E1EDF2'));c.setStrokeColor(HexColor('#CADFE8'))
     p=c.beginPath();p.moveTo(-r*.19,-r*.025);p.lineTo(0,r*.10);p.lineTo(r*.19,-r*.025);p.close();c.drawPath(p,fill=1,stroke=1)
     c.restoreState()
 
@@ -84,7 +84,6 @@ def base(num=None):
         text(51,H-57,'Л У Н А  В  З Н А К А Х  З О Д И А К А',size=8,color=MUTED)
         c.setStrokeColor(HexColor('#BDD2DE'));c.line(51,67,W-51,67)
         text(51,46,'Лунные знаки',size=8,color=MUTED)
-        text(W-68,46,f'{num:02}',size=9,color=MUTED)
 
 def para(s,x,top,width,font,size,leading,color=INK):
     # Typography only: spaced hyphens become em dashes; wording is unchanged.
@@ -99,11 +98,9 @@ c.setStrokeColor(HexColor('#AEC9D9'));c.setLineWidth(.65)
 c.circle(W/2,637,66,stroke=1,fill=0);c.circle(W/2,637,79,stroke=1,fill=0)
 pearl(W/2,637,49)
 for x,y,r in [(W/2+76,659,3),(W/2-62,589,2),(W/2+7,716,2)]:pearl(x,y,r)
-center(773,'Л У Н Н А Я   К О Л Л Е К Ц И Я',font='Body',size=8,color=MUTED)
 center(496,'Луна',size=78)
 center(441,'в знаках зодиака',size=43)
 c.setStrokeColor(HexColor('#9DBECD'));c.line(254,409,341,409)
-center(378,'12 знаков · 12 эмоциональных миров',font='Body',size=10,color=MUTED)
 shell(W/2,136,158,-7)
 pearl(409,159,17);pearl(434,141,8);pearl(194,152,6)
 center(59,'ЧУВСТВА   /   ПРИВЫЧКИ   /   ОБРАЗ МАМЫ',font='Body',size=7.5,color=MUTED)
@@ -113,7 +110,6 @@ data=json.loads((ROOT/'assets/content.json').read_text())
 for idx,item in enumerate(data,1):
     base(idx)
     c.bookmarkPage(f'sign{idx}');c.addOutlineEntry(item['title'],f'sign{idx}',level=0)
-    text(50,708,f'{idx:02}',font='Display',size=68,color=HexColor('#A4C2D3'))
     text(51,650,item['title'],font='Display',size=40)
     c.setStrokeColor(HexColor('#A6C5D6'));c.setLineWidth(.8);c.line(52,626,111,626)
     top=599
