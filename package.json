@@ -1,0 +1,13 @@
+{
+  "name": "adelina-site-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local PHP 8.2 WASM preview tooling for adelina-site",
+  "scripts": {
+    "dev": "php-cli -S 0.0.0.0:${PORT:-8000} -t public public/index.php",
+    "lint": "find public src templates routes -name '*.php' -print0 | xargs -0 -n1 php-cli -l"
+  },
+  "devDependencies": {
+    "php-cli": "0.1.5"
+  }
+}
