@@ -1,7 +1,8 @@
 {
-  "name": "a24415858-sketch/adelina-site",
-  "description": "Empty PHP website skeleton",
+  "name": "a24415858-sketch/sait",
+  "description": "Empty PHP website skeleton for sait",
   "type": "project",
+  "license": "proprietary",
   "require": {
     "php": ">=8.2"
   },

@@ -9,7 +9,7 @@ return [
         http_response_code(200);
 
         echo View::render('layout', [
-            'title' => 'adelina-site',
+            'title' => 'sait',
             'content' => View::render('pages/home'),
         ]);
     },
