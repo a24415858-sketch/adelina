@@ -41,20 +41,19 @@ centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
 # Use the exact approved portrait: no new generation, recoloring or face retouch.
-portrait=Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGBA')
-assert portrait.size==(680,960)
-# Preserve the entire curl silhouette from the exact referenced version (3e21ec6).
+portrait=Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGBA')
+w,h=portrait.size
+# Use precisely the latest user-uploaded picture without any face/hair compositing.
 # Only soften outer image margins; do not trace, crop or reshape any curls.
-h,w=960,680
 y,x=np.mgrid[0:h,0:w]
 alpha=np.ones((h,w),dtype=float)
-for edge in [np.clip(x/8,0,1),np.clip((w-1-x)/100,0,1),
-             np.clip(y/25,0,1),np.clip((h-1-y)/115,0,1)]:
+for edge in [np.clip(x/(w*8/680),0,1),np.clip((w-1-x)/(w*100/680),0,1),
+             np.clip(y/(h*25/960),0,1),np.clip((h-1-y)/(h*115/960),0,1)]:
     alpha*=edge*edge*(3-2*edge)
 portrait.putalpha(Image.fromarray(np.uint8(alpha*255)))
-assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGB')))
+assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
 # Restore the original reference scale/aspect rather than widening the hairstyle.
-c.drawImage(ImageReader(portrait),48,432,190,268,mask='auto')
+c.drawImage(ImageReader(portrait),48,432,190,190*h/w,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
 end=paragraph(d['intro'],263,end-20,278,size=11.7,leading=18.3)
 assert end>436,end

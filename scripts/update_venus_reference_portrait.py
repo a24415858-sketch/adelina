@@ -1,4 +1,4 @@
-"""Change the hair in the user's approved PDF while restoring its actual face pixels.
+"""Use the user-selected portrait unchanged in the final page of the approved PDF.
 This is the current reference-based build; older layout builders are retained separately.
 """
 from pathlib import Path
@@ -8,36 +8,7 @@ import pymupdf
 import subprocess, sys, re
 
 ROOT=Path(__file__).resolve().parents[1]
-original=Image.open(ROOT/'assets/venus-approved-reference-portrait.png').convert('RGB')
-edit=Image.open(ROOT/'assets/venus-pdf-hair-edit.png').convert('RGB').resize(original.size,Image.Resampling.LANCZOS)
-assert original.size==(680,960)
-# Restrict AI-generated pixels to the hair and nearby silhouette, not the whole photo.
-hair=Image.new('L',original.size)
-ImageDraw.Draw(hair).polygon([(135,25),(275,20),(365,45),(420,115),(460,215),(470,300),(495,410),(438,449),(354,396),(274,443),(231,509),(147,568),(35,601),(8,570),(24,466),(65,323),(83,173)],fill=255)
-hair=hair.filter(ImageFilter.GaussianBlur(9))
-# Protect the original face, ears, jaw and neck. No generated beauty retouch remains here.
-face=Image.new('L',original.size)
-ImageDraw.Draw(face).polygon([(207,96),(248,82),(286,86),(320,106),(346,143),(364,185),(374,226),(377,270),(371,316),(354,348),(349,389),(333,433),(293,457),(251,431),(226,391),(214,356),(194,324),(165,299),(159,271),(182,250),(194,208),(195,157)],fill=255)
-# Feather only the silhouette edge; central facial features stay pixel-identical.
-face=face.filter(ImageFilter.GaussianBlur(2))
-a=np.asarray(hair,dtype=float)/255*(1-np.asarray(face,dtype=float)/255)
-result=Image.fromarray(np.uint8(np.asarray(original,dtype=float)*(1-a[...,None])+np.asarray(edit,dtype=float)*a[...,None]))
-# Add only the requested lock over the visible ear, keeping all other pixels intact.
-ear_edit=Image.open(ROOT/'assets/venus-ear-covered-edit.png').convert('RGB').resize(original.size,Image.Resampling.LANCZOS)
-ear_mask=Image.new('L',original.size)
-ImageDraw.Draw(ear_mask).polygon([(139,215),(180,211),(199,242),(207,277),(221,311),
-                                  (250,350),(246,388),(201,409),(174,396),(151,359),
-                                  (138,313),(130,268)],fill=255)
-ea=np.asarray(ear_mask.filter(ImageFilter.GaussianBlur(5)),dtype=float)/255
-# Protect the eye, cheek center, nose and mouth, even at the feathered boundary.
-ea[:320,220:]=0
-before_ear=np.asarray(result).copy()
-result=Image.fromarray(np.uint8(before_ear*(1-ea[...,None])+np.asarray(ear_edit,dtype=float)*ea[...,None]))
-assert np.array_equal(np.asarray(result)[ea==0],before_ear[ea==0])
-portrait=ROOT/'assets/venus-approved-portrait-loose-curls.png'
-result.save(portrait)
-# Explicit check: central facial features come from the original image, unchanged.
-assert np.array_equal(np.asarray(result)[190:320,220:345],np.asarray(original)[190:320,220:345])
+# The final page uses the latest user-uploaded portrait verbatim.
 source=ROOT/'assets/venus-approved-reference.pdf'
 pdf=pymupdf.open(source)
 # Rebuild only the final page to remove the portrait frame and integrate its silhouette.
@@ -56,5 +27,5 @@ with pymupdf.open(source) as before, pymupdf.open(output) as after:
     assert all(norm(x.get_text())==norm(y.get_text()) for x,y in zip(before,after))
     for i in range(13):
         assert before[i].get_pixmap().samples==after[i].get_pixmap().samples
-print('Verified: original facial pixels restored, all text and first 13 pages unchanged.')
+print('Verified: user-selected portrait used without RGB changes; all text and first 13 pages unchanged.')
 print(output)
