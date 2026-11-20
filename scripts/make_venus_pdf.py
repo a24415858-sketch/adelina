@@ -1,4 +1,4 @@
-"""Venus booklet transcribed from the 18 supplied slides (Cancer through Pisces).
+"""Complete Venus booklet: nine transcribed signs plus three newly written sections.
 No screenshot crops or portraits are used in the PDF. Run from any directory.
 """
 from pathlib import Path
@@ -19,8 +19,8 @@ pdfmetrics.registerFont(TTFont('VenusDisplay',str(ROOT/'assets/CormorantGaramond
 pdfmetrics.registerFont(TTFont('VenusBody','/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 pdfmetrics.registerFont(TTFont('VenusBold','/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
 c=canvas.Canvas(str(OUT),pagesize=(W,H),pageCompression=1)
-c.setTitle('Венера в знаках зодиака — от Рака до Рыб')
-c.setSubject('Притяжение, стиль, красота и личный магнетизм. По предоставленным слайдам.')
+c.setTitle('Венера в знаках зодиака')
+c.setSubject('Притяжение, стиль, красота и личный магнетизм. Все 12 знаков зодиака.')
 
 def base():
     c.drawImage(str(ROOT/'assets/venus-background.jpg'),0,0,W,H)
@@ -58,7 +58,6 @@ center(481,'Венера',size=83,color=ROSE)
 center(433,'в знаках зодиака',size=34)
 c.setStrokeColor(LINE);c.line(W/2-35,408,W/2+35,408)
 center(379,'ПРИТЯЖЕНИЕ  ·  КРАСОТА  ·  МАГНЕТИЗМ',size=8.6,font='VenusBody',color=ROSE)
-center(342,'От Рака до Рыб',size=21)
 c.showPage()
 
 items=json.loads((ROOT/'assets/venus-content.json').read_text())
