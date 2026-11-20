@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from xml.sax.saxutils import escape
-from PIL import Image, ImageOps, ImageFilter
+from PIL import Image, ImageOps, ImageFilter, ImageDraw
 from collections import deque
 import numpy as np
 from reportlab.pdfgen import canvas
@@ -40,20 +40,26 @@ c.setFillColor(Color(1,.985,.985,alpha=.68));c.roundRect(28,79,W-56,H-104,18,str
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
-# Hair-only AI edit from the original photo: keep its makeup, grain and lighting.
-# A softly feathered editorial mask integrates it into the page without a frame.
-portrait=ImageOps.exif_transpose(Image.open(ROOT/'assets/venus-portrait-natural-curls.png')).convert('RGBA')
-portrait=ImageOps.fit(portrait,(900,1200),method=Image.Resampling.LANCZOS,centering=(.5,.05))
-h,w=1200,900
+# Use the exact approved portrait: no new generation, recoloring or face retouch.
+portrait=Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGBA')
+assert portrait.size==(680,960)
+# Hand-drawn silhouette removes the studio backdrop; only alpha is changed.
+mask=Image.new('L',portrait.size)
+outline=[(190,55),(244,42),(294,48),(338,62),(373,88),(404,134),
+         (425,183),(449,225),(450,277),(480,316),(493,365),(479,395),
+         (540,401),(618,422),(680,451),(680,960),(0,960),(0,650),
+         (20,573),(11,547),(34,487),(52,447),(66,401),(60,353),
+         (62,287),(82,233),(83,177),(106,121),(135,85)]
+ImageDraw.Draw(mask).polygon(outline,fill=255)
+alpha=np.asarray(mask.filter(ImageFilter.GaussianBlur(3)),dtype=float)
+h,w=960,680
 y,x=np.mgrid[0:h,0:w]
-left=np.clip(x/(w*.12),0,1)
-right=np.clip((w-1-x)/(w*.20),0,1)
-top=np.clip(y/(h*.06),0,1)
-bottom=np.clip((h-1-y)/(h*.20),0,1)
-alpha=np.ones((h,w),dtype=float)
-for fade in [left,right,top,bottom]:
-    alpha*=fade*fade*(3-2*fade)
-portrait.putalpha(Image.fromarray(np.uint8(alpha*255)))
+bottom=np.clip((h-1-y)/(h*.17),0,1)
+right=np.clip((w-1-x)/(w*.07),0,1)
+alpha*=bottom*bottom*(3-2*bottom)*right*right*(3-2*right)
+portrait.putalpha(Image.fromarray(np.uint8(alpha)))
+# The center of the face is completely opaque; the RGB pixels remain untouched.
+assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGB')))
 c.drawImage(ImageReader(portrait),29,425,228,305,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
 end=paragraph(d['intro'],263,end-20,278,size=11.7,leading=18.3)
