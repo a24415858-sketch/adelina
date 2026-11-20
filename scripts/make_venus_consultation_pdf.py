@@ -33,7 +33,7 @@ def paragraph(s,x,top,width,font='ConsultBody',size=11.2,leading=17,color=INK):
     p.drawOn(c,x,top-height)
     return top-height
 
-c.drawImage(str(ROOT/'assets/venus-background.jpg'),0,0,W,H)
+c.drawImage(str(ROOT/'assets/venus-silk-background.jpg'),0,0,W,H)
 # One continuous page background: no card, frame or rounded panel.
 c.setFillColor(Color(1,.985,.985,alpha=.60));c.rect(0,0,W,H,stroke=0,fill=1)
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)

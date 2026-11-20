@@ -23,7 +23,7 @@ c.setTitle('Венера в знаках зодиака')
 c.setSubject('Притяжение, стиль, красота и личный магнетизм. Все 12 знаков зодиака.')
 
 def base():
-    c.drawImage(str(ROOT/'assets/venus-background.jpg'),0,0,W,H)
+    c.drawImage(str(ROOT/'assets/venus-silk-background.jpg'),0,0,W,H)
 
 def center(y,text,size=30,font='VenusDisplay',color=INK):
     c.setFillColor(color);c.setFont(font,size);c.drawCentredString(W/2,y,text)
