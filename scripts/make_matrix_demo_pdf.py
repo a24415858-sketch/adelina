@@ -15,6 +15,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import HexColor
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
 import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,23 +57,17 @@ text('ЖЕНСКИЕ ЧАКРЫ  /  МАТРИЦА СУДЬБЫ', 46, 805, 7.5, 
 c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5); c.line(46, 43, W - 46, 43)
 text('Полный гайд', 46, 28, 7, color=MUTED)
 
-text('Это только начало', 46, 728, 42, 'Display')
-y = para('Ты увидела карту и первые описания. А теперь представь, что будет, когда у каждой энергии появится подробное описание и практика.', 46, 688, 495, 12, 20)
-y -= 40
-text('В полном гайде «Женские чакры»', 46, y, 22, 'Display'); y -= 38
-for item in [
-    '70 страниц в нежном пастельном оформлении;',
-    'подробные описания всех 63 энергий: в плюсе, что может мешать и как вывести в плюс;',
-    'три развёрнутых практических пункта для каждой энергии;',
-    'пастельная схема твоей матрицы и страницы для заметок и планов.',
-]:
-    text('•', 46, y - 2, 12, 'Body', GOLD)
-    y = para(item, 72, y, 473, 12, 18) - 14
-y -= 22
-y = para('Полный гайд — это твой личный путь к себе в деталях: желания, чувства и ясность через небольшие ежедневные действия.', 46, y, 495, 12, 20)
-y -= 46
-c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(46, y + 8, 150, y + 8)
-text('Напиши мне, чтобы получить полный гайд', 46, y - 26, 24, 'Display')
+# Centered, minimal offer of the full guide (no contents list).
+c.setFillColor(HexColor(INK)); c.setFont('Display', 46)
+c.drawCentredString(W / 2, 705, 'Это только начало')
+c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 55, 672, W / 2 + 55, 672)
+body = Paragraph(
+    escape('В полном гайде — подробные описания всех чакр. Каждая энергия: в плюсе, что может мешать и как вывести в плюс. Семьдесят страниц, которые станут твоим личным путём к себе.'),
+    ParagraphStyle('cb', fontName='Body', fontSize=13, leading=22, textColor=HexColor(INK), alignment=TA_CENTER))
+_, bh = body.wrap(440, H)
+body.drawOn(c, (W - 440) / 2, 600 - bh)
+c.setFillColor(HexColor(INK)); c.setFont('Display', 26)
+c.drawCentredString(W / 2, 478, 'Напиши мне, чтобы получить полный гайд')
 c.showPage(); c.save()
 
 # --- assemble ---------------------------------------------------------------
