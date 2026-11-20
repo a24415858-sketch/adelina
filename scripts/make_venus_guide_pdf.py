@@ -130,8 +130,6 @@ toc = [
     ('Архетипы Венеры', '12 лиц богини'),
     ('Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности'),
     ('Венера и стихии', 'Огонь, земля, воздух, вода'),
-    ('Венера в крестах', 'Кардинальный, фиксированный, мутабельный'),
-    ('Венера и планеты', 'Как Венера работает с каждой планетой'),
     ('Вопросы к себе', 'Творчество, здоровье, карма, праздники'),
     ('Заключение', 'Ваша Венера уже прекрасна'),
 ]
@@ -212,16 +210,13 @@ for ar in data['archetypes']:
     c.bookmarkPage('arch' + ar['name']); c.addOutlineEntry(ar['name'], 'arch' + ar['name'], 1)
     c.showPage()
 
-# ---------- Part V: Practical (2 pages each) ----------
+# ---------- Practical (1 page each) ----------
 for sec in data['practical']:
-    paras = sec['paragraphs']
-    half = (len(paras) + 1) // 2
-    for chunk in (paras[:half], paras[half:]):
-        bg()
-        y = header('Практика', sec['title'])
-        for p in chunk:
-            y = para(p, MARGIN, y, CW, 10.5, 16) - 10
-        c.showPage()
+    bg()
+    y = header('Практика', sec['title'])
+    for p in sec['paragraphs'][:4]:
+        y = para(p, MARGIN, y, CW, 10.5, 15) - 9
+    c.showPage()
 
 # ---------- Part VI: Elements ----------
 for e in data['elements']:
@@ -233,30 +228,6 @@ for e in data['elements']:
     y = label(y, 'Вызовы')
     y = bullets(e['challenges'], y) - 6
     box(y, 'Как вывести в плюс', e['plus'])
-    c.showPage()
-
-# ---------- Part VII: Crosses ----------
-for cr in data['crosses']:
-    bg()
-    y = header('Крест', cr['title'], cr['name'], cr['symbol'])
-    y = para(cr['intro'], MARGIN, y, CW, 10.5, 16) - 8
-    y = label(y, 'Сильные стороны')
-    y = bullets(cr['strengths'], y) - 4
-    y = label(y, 'Вызовы')
-    y = bullets(cr['challenges'], y) - 6
-    box(y, 'Как вывести в плюс', cr['plus'])
-    c.showPage()
-
-# ---------- Part VIII: Planets ----------
-for pl in data['planets']:
-    bg()
-    y = header('Планета', pl['title'], None, pl['symbol'])
-    y = para(pl['intro'], MARGIN, y, CW, 10.5, 16) - 8
-    y = label(y, 'Сильные стороны')
-    y = bullets(pl['strengths'], y) - 4
-    y = label(y, 'Вызовы')
-    y = bullets(pl['challenges'], y) - 6
-    box(y, 'Как вывести в плюс', pl['plus'])
     c.showPage()
 
 # ---------- Questions / Creativity / Health / Karma ----------
