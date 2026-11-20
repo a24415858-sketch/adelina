@@ -124,15 +124,15 @@ bg()
 y = header('Содержание', 'Что внутри')
 toc = [
     ('Введение', 'Что такое Венера и как читать гайд'),
-    ('Часть I', 'Венера в знаках — 12 стилей любви и красоты'),
-    ('Часть II', 'Венера в домах — 12 сфер жизни'),
-    ('Часть III', 'Аспекты Венеры — соединение, трин, секстиль, оппозиция, квадрат'),
-    ('Часть IV', 'Архетипы Венеры — 12 лиц богини'),
-    ('Часть V', 'Как вывести Венеру в плюс — практики'),
-    ('Часть VI', 'Венера и стихии'),
-    ('Часть VII', 'Венера в крестах'),
-    ('Часть VIII', 'Венера и планеты'),
-    ('Часть IX', 'Венера в транзитах'),
+    ('Венера в знаках', '12 стилей любви и красоты'),
+    ('Венера в домах', '12 сфер жизни'),
+    ('Аспекты Венеры', 'Соединение, трин, секстиль, оппозиция, квадрат с другими планетами'),
+    ('Архетипы Венеры', '12 лиц богини'),
+    ('Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности'),
+    ('Венера и стихии', 'Огонь, земля, воздух, вода'),
+    ('Венера в крестах', 'Кардинальный, фиксированный, мутабельный'),
+    ('Венера и планеты', 'Как Венера работает с каждой планетой'),
+    ('Вопросы к себе', 'Творчество, здоровье, карма, праздники'),
     ('Заключение', 'Ваша Венера уже прекрасна'),
 ]
 for t, d in toc:
@@ -140,31 +140,18 @@ for t, d in toc:
 c.showPage()
 
 
-def divider(num, title, sub):
+# ---------- Intro (3 balanced pages) ----------
+for chunk in (data['intro'][:1], data['intro'][1:2], data['intro'][2:]):
     bg()
-    y = header(f'Часть {num}', title, sub)
-    c.bookmarkPage(f'part{num}'); c.addOutlineEntry(f'Часть {num}. {title}', f'part{num}', 0)
+    y = header('Введение', 'Что такое Венера')
+    for sec in chunk:
+        y = label(y, sec['title'])
+        for p in sec['paragraphs']:
+            y = para(p, MARGIN, y, CW, 10.5, 14.5) - 10
+        y -= 8
     c.showPage()
 
-
-# ---------- Intro ----------
-bg()
-y = header('Введение', 'Что такое Венера')
-for sec in data['intro']:
-    if y - 18 - measure(sec['paragraphs'][0], CW) < LIMIT:
-        c.showPage(); bg(); y = H - 62
-        ctext('Введение', y, 30, 'Display', INK); y -= 44
-    y = label(y, sec['title'])
-    for p in sec['paragraphs']:
-        if y - measure(p, CW) < LIMIT:
-            c.showPage(); bg(); y = H - 62
-            ctext('Введение', y, 30, 'Display', INK); y -= 44
-        y = para(p, MARGIN, y, CW, 10.5, 16) - 10
-    y -= 8
-c.showPage()
-
 # ---------- Part I: Signs (1 page each, demo layout) ----------
-divider('I', 'Венера в знаках', 'Стиль любви и красоты')
 for s in data['signs']:
     bg()
     y = header(s['element'], s['title'], f'«{s["archetype"]}»', s['symbol'])
@@ -183,7 +170,6 @@ for s in data['signs']:
     c.showPage()
 
 # ---------- Part II: Houses (1 page each) ----------
-divider('II', 'Венера в домах', 'Сфера жизни, где Венера сильнее всего')
 for h in data['houses']:
     bg()
     y = header(f'Дом {h["symbol"]}', h['title'], h['sphere'])
@@ -199,7 +185,6 @@ for h in data['houses']:
     c.showPage()
 
 # ---------- Part III: Aspects (5 types with planets) ----------
-divider('III', 'Аспекты Венеры', 'Соединение · трин · секстиль · оппозиция · квадрат')
 for a in data['aspects']:
     bg()
     y = header('Аспект', a['title'], None, a['symbol'])
@@ -215,7 +200,6 @@ for a in data['aspects']:
     c.showPage()
 
 # ---------- Part IV: Archetypes (1 page each) ----------
-divider('IV', 'Архетипы Венеры', 'Двенадцать лиц богини')
 for ar in data['archetypes']:
     bg()
     y = header('Архетип', ar['name'], f'знак: {ar["sign"]}')
@@ -229,7 +213,6 @@ for ar in data['archetypes']:
     c.showPage()
 
 # ---------- Part V: Practical (2 pages each) ----------
-divider('V', 'Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности')
 for sec in data['practical']:
     paras = sec['paragraphs']
     half = (len(paras) + 1) // 2
@@ -241,7 +224,6 @@ for sec in data['practical']:
         c.showPage()
 
 # ---------- Part VI: Elements ----------
-divider('VI', 'Венера и стихии', 'Огонь · земля · воздух · вода')
 for e in data['elements']:
     bg()
     y = header('Стихия', e['title'], e['name'], e['symbol'])
@@ -254,7 +236,6 @@ for e in data['elements']:
     c.showPage()
 
 # ---------- Part VII: Crosses ----------
-divider('VII', 'Венера в крестах', 'Кардинальный · фиксированный · мутабельный')
 for cr in data['crosses']:
     bg()
     y = header('Крест', cr['title'], cr['name'], cr['symbol'])
@@ -267,7 +248,6 @@ for cr in data['crosses']:
     c.showPage()
 
 # ---------- Part VIII: Planets ----------
-divider('VIII', 'Венера и планеты', 'Как Венера работает с каждой планетой')
 for pl in data['planets']:
     bg()
     y = header('Планета', pl['title'], None, pl['symbol'])
@@ -277,15 +257,6 @@ for pl in data['planets']:
     y = label(y, 'Вызовы')
     y = bullets(pl['challenges'], y) - 6
     box(y, 'Как вывести в плюс', pl['plus'])
-    c.showPage()
-
-# ---------- Part IX: Transits ----------
-divider('IX', 'Венера в транзитах', 'Как читать движение Венеры по небу')
-for sec in data['transits']:
-    bg()
-    y = header('Транзиты', sec['title'])
-    for p in sec['paragraphs']:
-        y = para(p, MARGIN, y, CW, 10.5, 16) - 10
     c.showPage()
 
 # ---------- Questions / Creativity / Health / Karma ----------
@@ -339,6 +310,6 @@ with pymupdf.open(OUT) as pdf:
     for p in pdf:
         for word in p.get_text('words'):
             assert word[0] >= 0 and word[1] >= 0 and word[2] <= W + 1 and word[3] <= H + 1, word
-    for i, name in [(0, 'cover'), (5, 'sign'), (31, 'house'), (37, 'aspect'), (50, 'arch'), (99, 'closing')]:
-        pdf[i].get_pixmap(matrix=pymupdf.Matrix(1.1, 1.1)).save(f'/home/user/v2-{name}.png')
+    for i, name in [(0, 'cover'), (4, 'sign'), (16, 'house'), (28, 'aspect'), (34, 'arch'), (len(pdf) - 1, 'closing')]:
+        pdf[i].get_pixmap(matrix=pymupdf.Matrix(1.1, 1.1)).save(f'/home/user/v3-{name}.png')
     print(f'Venus guide v2 built: {len(pdf)} pages: {OUT}')
