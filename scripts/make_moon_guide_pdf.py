@@ -115,14 +115,8 @@ def kv(y, key, val):
 # ---------- Cover ----------
 page += 1
 c.drawImage(str(BG_COVER), 0, 0, W, H)
-c.setStrokeColor(HexColor(ACCENT)); c.setLineWidth(.8)
-c.circle(W / 2, H - 190, 46, stroke=1, fill=0)
-ctext('☽', H - 201, 46, 'Body', ACCENT)
-ctext('Луна', H - 300, 92, 'Display', ACCENT)
-ctext('в знаках зодиака', H - 340, 26, 'Display', INK)
-ctext('полный гайд', H - 372, 20, 'Display', ACCENT)
-c.setStrokeColor(HexColor(SILVER)); c.setLineWidth(.8); c.line(W / 2 - 55, H - 400, W / 2 + 55, H - 400)
-ctext('ЭМОЦИИ · КОМФОРТ · ДОМ', H - 430, 9, 'Bold', ACCENT)
+ctext('Луна', H - 190, 100, 'Display', ACCENT)
+ctext('в знаках зодиака', H - 232, 30, 'Display', INK)
 c.bookmarkPage('cover'); c.addOutlineEntry('Луна — полный гайд', 'cover', 0); c.showPage()
 
 # ---------- Contents ----------
