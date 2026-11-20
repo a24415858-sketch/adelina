@@ -40,27 +40,10 @@ c.setFillColor(Color(1,.985,.985,alpha=.68));c.roundRect(28,79,W-56,H-104,18,str
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
-# Use the exact approved portrait: no new generation, recoloring or face retouch.
-portrait=Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGBA')
+# Actual transparent cutout: no photo background, soft panel, frame or edge fade.
+portrait=Image.open(ROOT/'assets/venus-portrait-transparent.png').convert('RGBA')
 w,h=portrait.size
-# Remove only the surrounding studio backdrop using a feathered silhouette mask.
-# The uploaded photograph itself is not regenerated or retouched.
-outline=[(190,100),(255,82),(300,62),(355,55),(407,66),(450,87),
-         (476,121),(491,158),(525,189),(546,224),(553,264),(575,299),
-         (569,338),(595,364),(592,400),(610,427),(604,461),(624,494),
-         (720,508),(810,550),(864,589),(864,1220),(0,1220),(0,832),
-         (26,757),(13,727),(27,681),(45,645),(54,609),(78,571),
-         (77,532),(92,494),(90,451),(101,410),(104,370),(116,334),
-         (114,290),(131,251),(143,213),(143,173),(162,136)]
-mask=Image.new('L',(w,h))
-ImageDraw.Draw(mask).polygon([(round(px*w/864),round(py*h/1220)) for px,py in outline],fill=255)
-alpha=np.asarray(mask.filter(ImageFilter.GaussianBlur(4)),dtype=float)/255
-y,x=np.mgrid[0:h,0:w]
-for edge in [np.clip((w-1-x)/(w*.055),0,1),np.clip((h-1-y)/(h*.19),0,1)]:
-    alpha*=edge*edge*(3-2*edge)
-portrait.putalpha(Image.fromarray(np.uint8(alpha*255)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
-# Larger borderless silhouette flows naturally into the description and page background.
 c.drawImage(ImageReader(portrait),32,425,220,220*h/w,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
 end=paragraph(d['intro'],263,end-20,278,size=11.7,leading=18.3)
