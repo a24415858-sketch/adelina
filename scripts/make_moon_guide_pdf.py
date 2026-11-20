@@ -127,10 +127,9 @@ toc = [
     ('Луна в знаках', '12 способов чувствовать и заботиться'),
     ('Луна в домах', '12 сфер жизни'),
     ('Аспекты Луны', 'Соединение, трин, секстиль, оппозиция, квадрат с другими планетами'),
-    ('Архетипы Луны', '12 лиц лунной богини'),
     ('Как вывести Луну в плюс', 'Практики комфорта, заботы и внутреннего спокойствия'),
     ('Луна и стихии', 'Огонь, земля, воздух, вода'),
-    ('Луна в жизни', 'Дом, семья, привычки, сны, ритмы'),
+    ('Луна в жизни', 'Дом, семья, привычки, ритмы'),
     ('Вопросы к себе', 'Творчество, отдых, карма, праздники'),
     ('Заключение', 'Ваша Луна уже заботится о вас'),
 ]
@@ -194,19 +193,6 @@ for a in data['aspects']:
         y = y - hh - 2
     box(y, 'Как вывести в плюс', a['plus'])
     c.bookmarkPage('aspect' + a['title']); c.addOutlineEntry(a['title'], 'aspect' + a['title'], 1)
-    c.showPage()
-
-# ---------- Part IV: Archetypes (1 page each) ----------
-for ar in data['archetypes']:
-    bg()
-    y = header('Архетип', ar['name'], f'знак: {ar["sign"]}')
-    y = para(ar['desc'], MARGIN, y, CW, 10.5, 16) - 8
-    y = label(y, 'Сила архетипа')
-    y = bullets(ar['strengths'], y) - 4
-    y = label(y, 'Тень архетипа')
-    y = bullets(ar['shadow'], y) - 4
-    box(y, 'Как жить в плюсе', ar['plus'])
-    c.bookmarkPage('arch' + ar['name']); c.addOutlineEntry(ar['name'], 'arch' + ar['name'], 1)
     c.showPage()
 
 # ---------- Practical (1 page each) ----------
@@ -293,6 +279,6 @@ with pymupdf.open(OUT) as pdf:
     for p in pdf:
         for word in p.get_text('words'):
             assert word[0] >= 0 and word[1] >= 0 and word[2] <= W + 1 and word[3] <= H + 1, word
-    for i, name in [(0, 'cover'), (4, 'sign'), (16, 'house'), (28, 'aspect'), (34, 'arch'), (len(pdf) - 1, 'closing')]:
+    for i, name in [(0, 'cover'), (4, 'sign'), (16, 'house'), (28, 'aspect'), (len(pdf) - 1, 'closing')]:
         pdf[i].get_pixmap(matrix=pymupdf.Matrix(1.1, 1.1)).save(f'/home/user/moon-{name}.png')
     print(f'Moon guide built: {len(pdf)} pages: {OUT}')
