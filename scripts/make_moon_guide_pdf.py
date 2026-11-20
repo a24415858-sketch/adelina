@@ -13,7 +13,8 @@ import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'documents/Luna_polny_gayd.pdf'
-BG = ROOT / 'assets/pearl-treasure-soft.jpg'
+BG = ROOT / 'assets/pearl-ocean-background.jpg'
+BG_COVER = ROOT / 'assets/pearl-treasure-background.jpg'
 data = json.loads((ROOT / 'assets/moon-guide-content.json').read_text())
 
 pdfmetrics.registerFont(TTFont('Display', str(ROOT / 'assets/CormorantGaramond.ttf')))
@@ -58,6 +59,10 @@ def bg():
     global page
     page += 1
     c.drawImage(str(BG), 0, 0, W, H)
+    # white card behind content (like reference)
+    c.setFillColor(HexColor('#FFFFFF'))
+    c.setStrokeColor(HexColor(LINE)); c.setLineWidth(.7)
+    c.roundRect(30, 70, W - 60, H - 115, 16, fill=1, stroke=1)
     ctext(f'— {page} —', 24, 8, 'Body', ACCENT)
 
 
@@ -109,7 +114,7 @@ def kv(y, key, val):
 
 # ---------- Cover ----------
 page += 1
-c.drawImage(str(BG), 0, 0, W, H)
+c.drawImage(str(BG_COVER), 0, 0, W, H)
 c.setStrokeColor(HexColor(ACCENT)); c.setLineWidth(.8)
 c.circle(W / 2, H - 190, 46, stroke=1, fill=0)
 ctext('☽', H - 201, 46, 'Body', ACCENT)
