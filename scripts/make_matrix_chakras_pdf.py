@@ -93,7 +93,7 @@ for s in [
 'Найди число у нужной чакры в своей схеме и открой соответствующую энергию. В каждом разделе есть все числа от 2 до 22; энергия 1 намеренно исключена. Это не индивидуальный разбор фотографии.',
 'Прочитай описание как повод для размышления. Если оно не откликается, не подгоняй себя под него. Выбери одно предложенное действие и наблюдай за собственным опытом.',
 'Возвращайся к практике несколько дней. Записывай: что попробовала, что почувствовала, что стало удобнее и что стоит изменить. «Блок» здесь — возможная привычка, а не диагноз.',
-'В Свадхистане каждой энергии посвящена отдельная страница: новое описание и пять практических действий. Выбирай подходящее, а не старайся выполнить всё сразу.']:
+'В Свадхистане каждой энергии посвящена отдельная страница: описание и три развёрнутых практических пункта. Выбирай подходящее, а не старайся выполнить всё сразу.']:
     y=para(s,46,y,495,10,15)-14
 c.showPage()
 
@@ -121,12 +121,10 @@ for index,(chakra,theme,motto) in enumerate(sections):
                 c.setStrokeColor(HexColor('#DFC8D5'));c.line(105,top-275,548,top-275)
         if index==0:
             # Flow the extended practice block after the description, never over it.
-            text('Чувственность в действиях',46,y-15,27,'Display')
-            text('ПЯТЬ ШАГОВ К УДОВОЛЬСТВИЮ И УВЕРЕННОСТИ',46,y-36,7.5,'Bold',MUTED)
-            yy=y-52
+            yy=y-25
             for j,action in enumerate(actions[str(int(items[offset]['energy']))]):
                 text(f'0{j+1}',46,yy-12,17,'Display',GOLD)
-                yy=para(action,82,yy,464,10.3,14.7)-10
+                yy=para(action,82,yy,464,10.3,15.2)-18
             assert yy>100, (n, 'action block too low', yy)
             para('Твой ориентир: больше удовольствия и свободы выбора, а не больше требований к себе. Начни с одного шага.',46,84,495,9,13,MUTED)
         if index!=0 and offset==20:
@@ -147,11 +145,13 @@ with pymupdf.open(OUT) as pdf:
                 for field in ['plus','block','practice']:
                     assert compact(row[field]) in compact(extracted),(chakra,row['energy'],field)
     fulltext=''.join(p.get_text() for p in pdf)
+    assert 'Чувственность в действиях' not in fulltext
+    assert 'ПЯТЬ ШАГОВ' not in fulltext
     for name in names:
         assert name not in fulltext, ('Unexpected arcana name', name)
     for n in range(2,23):
         page_text=compact(pdf[n+1].get_text())
-        assert len(actions[str(n)])==5
+        assert len(actions[str(n)])==3
         for action in actions[str(n)]: assert compact(action) in page_text,(n,action)
     for p in pdf:
         for word in p.get_text('words'):
