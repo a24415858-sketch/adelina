@@ -124,10 +124,10 @@ bg()
 y = header('Содержание', 'Что внутри')
 toc = [
     ('Введение', 'Что такое Луна и как читать гайд'),
-    ('Часть I. Основы Луны', '18 главных тем: от подсознания до бессознательных реакций'),
     ('Луна в знаках', '12 способов чувствовать и заботиться — подробно и кратко'),
     ('Луна в домах', '12 сфер жизни'),
     ('Аспекты Луны', 'Соединение, трин, секстиль, оппозиция, квадрат с другими планетами'),
+    ('Часть I. Основы Луны', '18 главных тем: от подсознания до бессознательных реакций'),
     ('Как вывести Луну в плюс', 'Практики комфорта, заботы и внутреннего спокойствия'),
     ('Луна и стихии', 'Огонь, земля, воздух, вода'),
     ('Луна в жизни', 'Дом, семья, привычки, ритмы'),
@@ -148,31 +148,6 @@ for sec in data['intro']:
         y = para(p, MARGIN, y, CW, 10, 13) - 6
     y -= 6
 c.showPage()
-
-# ---------- Part I: Moon Basics (18 points, each with 12 sign descriptions) ----------
-SIGN_SYMBOLS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓']
-for i, b in enumerate(data['basics'], 1):
-    bg()
-    y = header('Часть I. Основы Луны', f'{i}. {b["title"]}')
-    y = label(y, 'Значение')
-    y = para(b['meaning'], MARGIN, y, CW, 10.5, 15) - 8
-    y = label(y, 'Психологическое')
-    y = para(b['psych'], MARGIN, y, CW, 10.5, 15) - 8
-    y = label(y, 'Как проявляется')
-    y = para(b['manifest'], MARGIN, y, CW, 10.5, 15) - 8
-    box(y, 'Как вывести в плюс', b['plus'])
-    c.bookmarkPage('basic' + str(i)); c.addOutlineEntry(f'{i}. {b["title"]}', 'basic' + str(i), 1)
-    c.showPage()
-    # sign descriptions for this point (6 per page)
-    signs = b.get('signs', [])
-    for cs in range(0, len(signs), 6):
-        bg()
-        y = header('Часть I. Основы Луны', f'{i}. По знакам')
-        for j, s in enumerate(signs[cs:cs + 6]):
-            sym = SIGN_SYMBOLS[cs + j]
-            y = label(y, f'{sym} {s.split(" — ")[0]}')
-            y = para(s.split(' — ', 1)[1] if ' — ' in s else s, MARGIN, y, CW, 10.5, 15) - 8
-        c.showPage()
 
 # ---------- Part II: Signs (1 page each, demo layout) ----------
 for s in data['signs']:
@@ -230,6 +205,31 @@ for a in data['aspects']:
     box(y, 'Как вывести в плюс', a['plus'])
     c.bookmarkPage('aspect' + a['title']); c.addOutlineEntry(a['title'], 'aspect' + a['title'], 1)
     c.showPage()
+
+# ---------- Part I: Moon Basics (18 points, each with 12 sign descriptions) ----------
+SIGN_SYMBOLS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓']
+for i, b in enumerate(data['basics'], 1):
+    bg()
+    y = header('Часть I. Основы Луны', f'{i}. {b["title"]}')
+    y = label(y, 'Значение')
+    y = para(b['meaning'], MARGIN, y, CW, 10.5, 15) - 8
+    y = label(y, 'Психологическое')
+    y = para(b['psych'], MARGIN, y, CW, 10.5, 15) - 8
+    y = label(y, 'Как проявляется')
+    y = para(b['manifest'], MARGIN, y, CW, 10.5, 15) - 8
+    box(y, 'Как вывести в плюс', b['plus'])
+    c.bookmarkPage('basic' + str(i)); c.addOutlineEntry(f'{i}. {b["title"]}', 'basic' + str(i), 1)
+    c.showPage()
+    # sign descriptions for this point (6 per page)
+    signs = b.get('signs', [])
+    for cs in range(0, len(signs), 6):
+        bg()
+        y = header('Часть I. Основы Луны', f'{i}. По знакам')
+        for j, s in enumerate(signs[cs:cs + 6]):
+            sym = SIGN_SYMBOLS[cs + j]
+            y = label(y, f'{sym} {s.split(" — ")[0]}')
+            y = para(s.split(' — ', 1)[1] if ' — ' in s else s, MARGIN, y, CW, 10.5, 15) - 8
+        c.showPage()
 
 # ---------- Practical (1 page each) ----------
 for sec in data['practical']:
