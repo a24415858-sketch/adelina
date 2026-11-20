@@ -29,3 +29,8 @@ with pymupdf.open(source) as before, pymupdf.open(output) as after:
         assert before[i].get_pixmap().samples==after[i].get_pixmap().samples
 print('Verified: user-selected portrait used without RGB changes; all text and first 13 pages unchanged.')
 print(output)
+
+# A distinct download name avoids reopening an older downloaded Venera.pdf.
+unique_output=ROOT/'documents/Venera_bez_ramok.pdf'
+unique_output.write_bytes(output.read_bytes())
+print(unique_output)
