@@ -2,7 +2,9 @@
 from pathlib import Path
 import json
 from xml.sax.saxutils import escape
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter
+from collections import deque
+import numpy as np
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -38,14 +40,31 @@ c.setFillColor(Color(1,.985,.985,alpha=.68));c.roundRect(28,79,W-56,H-104,18,str
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
-# Use the pearl-style portrait edit requested by the user; the original is retained.
-portrait=ImageOps.exif_transpose(Image.open(ROOT/'assets/venus-consultation-portrait-pearl.png')).convert('RGB')
-portrait=ImageOps.fit(portrait,(680,960),method=Image.Resampling.LANCZOS,centering=(.5,.12))
-c.saveState()
-p=c.beginPath();p.roundRect(48,432,190,268,13);c.clipPath(p,stroke=0)
-c.drawImage(ImageReader(portrait),48,432,190,268)
-c.restoreState()
-c.setStrokeColor(LINE);c.setLineWidth(.5);c.roundRect(48,432,190,268,13,stroke=1,fill=0)
+# Loose curls requested by the user. Remove edge-connected studio backdrop and
+# feather the bouquet into the page, with no rectangular frame or clipping card.
+portrait=ImageOps.exif_transpose(Image.open(ROOT/'assets/venus-portrait-curls.png')).convert('RGB')
+arr=np.asarray(portrait,dtype=float)
+h,w=arr.shape[:2]
+background=np.median(arr[:25].reshape(-1,3),axis=0)
+candidate=np.linalg.norm(arr-background,axis=2)<28
+seen=np.zeros((h,w),dtype=bool)
+queue=deque()
+for y,x in [(0,x) for x in range(w)]+[(h-1,x) for x in range(w)]+[(y,0) for y in range(h)]+[(y,w-1) for y in range(h)]:
+    if candidate[y,x] and not seen[y,x]:
+        seen[y,x]=True;queue.append((y,x))
+while queue:
+    y,x=queue.popleft()
+    for yy,xx in [(y-1,x),(y+1,x),(y,x-1),(y,x+1)]:
+        if 0<=yy<h and 0<=xx<w and candidate[yy,xx] and not seen[yy,xx]:
+            seen[yy,xx]=True;queue.append((yy,xx))
+alpha=np.asarray(Image.fromarray(np.uint8(~seen)*255).filter(ImageFilter.GaussianBlur(1)),dtype=float)
+y,x=np.mgrid[0:h,0:w]
+bottom=np.clip((h-y)/(h*.18),0,1)
+right=np.clip((w-x)/(w*.10),0,1)
+left=np.clip(x/(w*.035),0,1)
+fade=bottom*bottom*(3-2*bottom)*right*right*(3-2*right)*left
+portrait.putalpha(Image.fromarray(np.uint8(alpha*fade)))
+c.drawImage(ImageReader(portrait),29,425,228,305,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
 end=paragraph(d['intro'],263,end-20,278,size=11.7,leading=18.3)
 assert end>436,end
