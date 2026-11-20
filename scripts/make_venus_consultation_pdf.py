@@ -1,4 +1,4 @@
-"""Separate one-page Venus consultation invitation with the user's own portrait."""
+"""Venus consultation invitation with the user-approved pearl-style AI-edited portrait."""
 from pathlib import Path
 import json
 from xml.sax.saxutils import escape
@@ -38,8 +38,8 @@ c.setFillColor(Color(1,.985,.985,alpha=.68));c.roundRect(28,79,W-56,H-104,18,str
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
-# Use the actual uploaded photo without generative alteration; crop only for the layout.
-portrait=ImageOps.exif_transpose(Image.open(ROOT/'assets/venus-consultation-portrait.jpg')).convert('RGB')
+# Use the pearl-style portrait edit requested by the user; the original is retained.
+portrait=ImageOps.exif_transpose(Image.open(ROOT/'assets/venus-consultation-portrait-pearl.png')).convert('RGB')
 portrait=ImageOps.fit(portrait,(680,960),method=Image.Resampling.LANCZOS,centering=(.5,.12))
 c.saveState()
 p=c.beginPath();p.roundRect(48,432,190,268,13);c.clipPath(p,stroke=0)
