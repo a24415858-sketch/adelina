@@ -43,6 +43,15 @@ centered(d['title'],746,size=44,color=ROSE)
 # Actual transparent cutout: no photo background, soft panel, frame or edge fade.
 portrait=Image.open(ROOT/'assets/venus-portrait-transparent.png').convert('RGBA')
 w,h=portrait.size
+# Remove the rectangular photo's remaining garment/bouquet corners with a curved
+# transparent contour. The face and curls are outside this lower-edge adjustment.
+y,x=np.mgrid[0:h,0:w]
+xn=x/(w-1);yn=y/(h-1)
+# An elliptical lower silhouette has no junctions or right-angle corners.
+radius=np.sqrt(((xn-.50)/.49)**2+((yn-.45)/.54)**2)
+edge=np.clip((1-radius)*min(w,h)/2,0,1)
+alpha=np.asarray(portrait.getchannel('A'),dtype=float)*edge
+portrait.putalpha(Image.fromarray(np.uint8(alpha)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
 c.drawImage(ImageReader(portrait),32,425,220,220*h/w,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
