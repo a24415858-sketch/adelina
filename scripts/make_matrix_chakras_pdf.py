@@ -32,7 +32,7 @@ W,H=595.276,841.89
 c=canvas.Canvas(str(OUT),pagesize=(W,H),pageCompression=1)
 c.setTitle('Женские чакры • Энергии в плюс')
 c.setAuthor('Практикум по матрице судьбы')
-INK='#503B4C';MUTED='#826578';GOLD='#A66E87';PLUM='#EFE1E9';PAPER='#FCF7F8'
+INK='#4A3F35';MUTED='#8A7A68';GOLD='#B08D57';PLUM='#F5EDDD';PAPER='#FBF7F0'
 page=0
 
 def text(s,x,y,size=11,font='Body',color=INK):
@@ -45,33 +45,39 @@ def para(s,x,y,width,size=10.5,leading=15,color=INK,font='Body'):
     return y-height
 
 def motif(cx,cy,r,dark=False):
-    c.saveState();c.setStrokeColor(HexColor('#C9A7B9' if dark else '#E8D6E1'));c.setLineWidth(.55)
+    c.saveState();c.setStrokeColor(HexColor('#C9B18C' if dark else '#E3D5BE'));c.setLineWidth(.55)
     for a in range(0,360,60):
         rad=math.radians(a);c.circle(cx+math.cos(rad)*r*.5,cy+math.sin(rad)*r*.5,r*.65,stroke=1,fill=0)
     c.circle(cx,cy,r*1.2,stroke=1,fill=0);c.restoreState()
 
-def base(label):
+LEOPARD=str(ROOT/'assets/leopard-paper.png')
+LEOPARD_COVER=str(ROOT/'assets/leopard-plum.png')
+def leopard(x,y,w):
+    c.drawImage(LEOPARD,x,y,w,w*1.5)
+def base(label,leopard_w=95):
     global page
     page+=1
     c.setFillColor(HexColor(PAPER));c.rect(0,0,W,H,fill=1,stroke=0)
-    c.setFillColor(HexColor('#F0E2EB'));c.circle(W+65,H-90,190,fill=1,stroke=0)
+    c.setFillColor(HexColor('#EFE6D4'));c.circle(W+65,H-90,190,fill=1,stroke=0)
     motif(W+8,55,100)
+    leopard(W-40-leopard_w,H-38-leopard_w*1.5,leopard_w)
     text('ЖЕНСКИЕ ЧАКРЫ  /  МАТРИЦА СУДЬБЫ',46,805,7.5,color=MUTED)
-    c.setStrokeColor(HexColor('#DFC8D5'));c.setLineWidth(.5);c.line(46,43,W-46,43)
+    c.setStrokeColor(HexColor('#D9CBB2'));c.setLineWidth(.5);c.line(46,43,W-46,43)
     text(label,46,28,7,color=MUTED);text(f'{page:02d}',W-63,28,8,color=MUTED)
 
 # Cover
 page+=1
 c.setFillColor(HexColor(PLUM));c.rect(0,0,W,H,fill=1,stroke=0)
-motif(W/2,595,125,True)
-text('МАТРИЦА СУДЬБЫ',174,775,12,color='#A66E87')
-for title,y in [('Женские',441),('чакры',377)]:
-    c.setFillColor(HexColor('#624257'));c.setFont('Display',70);c.drawCentredString(W/2,y,title)
-c.setStrokeColor(HexColor(GOLD));c.line(245,340,350,340)
-for s,y in [('Свадхистана · Анахата · Аджна',298),('Как вывести энергии в плюс',262)]:
-    c.setFillColor(HexColor('#76596D'));c.setFont('Body',12);c.drawCentredString(W/2,y,s)
-para('Три пространства внимания к себе.\nЖелания, чувства и ясность — через небольшие ежедневные действия.',89,190,417,11,18,'#76596D')
-text('СИМВОЛИЧЕСКИЙ ПРАКТИКУМ ДЛЯ САМОПОЗНАНИЯ',98,68,8,color='#A66E87')
+motif(W/2,760,90,True)
+text('МАТРИЦА СУДЬБЫ',174,800,12,color='#B08D57')
+for title,y in [('Женские',712),('чакры',648)]:
+    c.setFillColor(HexColor('#4A3F35'));c.setFont('Display',64);c.drawCentredString(W/2,y,title)
+c.setStrokeColor(HexColor(GOLD));c.line(245,612,350,612)
+c.drawImage(LEOPARD_COVER,W/2-115,232,230,345)
+for s,y in [('Свадхистана · Анахата · Аджна',196),('Как вывести энергии в плюс',164)]:
+    c.setFillColor(HexColor('#6B5D4F'));c.setFont('Body',12);c.drawCentredString(W/2,y,s)
+para('Три пространства внимания к себе.\nЖелания, чувства и ясность — через небольшие ежедневные действия.',89,118,417,11,18,'#6B5D4F')
+text('СИМВОЛИЧЕСКИЙ ПРАКТИКУМ ДЛЯ САМОПОЗНАНИЯ',98,52,8,color='#B08D57')
 c.bookmarkPage('cover');c.addOutlineEntry('Женские чакры','cover',0);c.showPage()
 
 base('Твоя схема • отмеченные позиции')
@@ -108,7 +114,7 @@ for index,(chakra,theme,motto) in enumerate(sections):
     items=[r for r in rows if r['chakra']==chakra]
     actions=actions_by_chakra[chakra]
     for offset,row in enumerate(items):
-        base(chakra+' • Энергии 2–22')
+        base(chakra+' • Энергии 2–22',140 if offset==0 else 95)
         if offset==0:
             c.bookmarkPage('section'+str(index));c.addOutlineEntry(chakra,'section'+str(index),0)
         text(f'0{index+1}',47,747,15,'Body',GOLD)
@@ -145,7 +151,7 @@ for note_title, note_theme in [
     text(note_theme, 46, 712, 10, color=MUTED)
     y = 664
     while y > 92:
-        c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5)
+        c.setStrokeColor(HexColor('#D9CBB2')); c.setLineWidth(.5)
         c.line(46, y, W-46, y)
         y -= 40
     c.showPage()
@@ -161,7 +167,7 @@ for prompt in [
     'Какой один шаг я сделаю на этой неделе?',
 ]:
     text(prompt, 46, y, 11, color=MUTED)
-    c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5)
+    c.setStrokeColor(HexColor('#D9CBB2')); c.setLineWidth(.5)
     c.line(46, y-30, W-46, y-30)
     y -= 118
 c.showPage()

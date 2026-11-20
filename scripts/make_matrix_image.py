@@ -13,16 +13,16 @@ OUT = ROOT / 'assets/matrix-pastel.png'
 FONT = Path('/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf')
 
 S = 1600
-img = Image.new('RGBA', (S, S), (252, 247, 248, 255))  # page colour #FCF7F8
+img = Image.new('RGBA', (S, S), (251, 247, 240, 255))  # page colour #FBF7F0
 d = ImageDraw.Draw(img)
 
-INK = (80, 59, 76)         # #503B4C dark plum text
-LINE = (203, 169, 187)     # #CBA9BB soft mauve lines
-EDGE = (166, 110, 135)     # #A66E87 accent outline
-RING = (217, 167, 188)     # #D9A7BC decorative ring
-FILL = (253, 250, 251)     # near-white point fill
-FILL_HL = (246, 227, 236)  # #F6E3EC highlight fill
-FILL_OUT = (253, 243, 247) # #FDF3F7 outer point fill
+INK = (74, 63, 53)         # #4A3F35 warm taupe text
+LINE = (217, 203, 178)    # #D9CBB2 beige lines
+EDGE = (176, 141, 87)     # #B08D57 bronze outline
+RING = (201, 177, 140)    # #C9B18C decorative ring
+FILL = (253, 251, 247)    # near-white point fill
+FILL_HL = (243, 234, 217) # #F3EAD9 highlight fill
+FILL_OUT = (250, 243, 230) # #FAF3E6 outer point fill
 
 cx = cy = 800
 h = 480    # square half-size
