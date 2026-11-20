@@ -1,6 +1,6 @@
-"""Big Venus guide (~100 pages): signs, houses, aspects, archetypes, practices."""
+"""100-page Venus guide in the demo styling (pink silk, rose/gold)."""
 from pathlib import Path
-import json, math
+import json
 from xml.sax.saxutils import escape
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -13,15 +13,18 @@ import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'documents/Venera_polny_gayd.pdf'
-data = json.loads((ROOT / 'assets/venus-guide-content.json').read_text())
+BG = ROOT / 'assets/venus-silk-bg.png'
+data = json.loads((ROOT / 'assets/venus-guide-content-v2.json').read_text())
 
 pdfmetrics.registerFont(TTFont('Display', str(ROOT / 'assets/CormorantGaramond.ttf')))
 pdfmetrics.registerFont(TTFont('Body', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 pdfmetrics.registerFont(TTFont('Bold', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
+pdfmetrics.registerFontFamily('Body', normal='Body', bold='Bold', italic='Body', boldItalic='Bold')
 
 W, H = 595.276, 841.89
-INK = '#4A3542'; MUTED = '#8A6B7C'; GOLD = '#B08D57'
-PAPER = '#FDF9F5'
+INK = '#59404B'; ROSE = '#A75E77'; GOLD = '#B08D57'; LINE = '#D7B5BF'; BOX = '#FAE8EE'
+MARGIN = 48; CW = W - 2 * MARGIN
+LIMIT = 292  # lowest y (from bottom) text may reach; image busy area below
 c = canvas.Canvas(str(OUT), pagesize=(W, H), pageCompression=1)
 c.setTitle('Венера — полный гайд')
 c.setAuthor('Практикум по Венере')
@@ -36,212 +39,291 @@ def ctext(s, y, size=11, font='Body', color=INK):
     c.setFillColor(HexColor(color)); c.setFont(font, size); c.drawCentredString(W / 2, y, s)
 
 
-def para(s, x, y, width, size=11, leading=17, color=INK, font='Body', align=None):
+def para(s, x, y, width, size=10.5, leading=15.5, color=INK, font='Body', align=None):
     st = ParagraphStyle('b', fontName=font, fontSize=size, leading=leading, textColor=HexColor(color))
     if align is not None:
         st.alignment = align
-    p = Paragraph(escape(s).replace('\n', '<br/>'), st)
+    p = Paragraph(escape(s), st)
     _, hh = p.wrap(width, H); p.drawOn(c, x, y - hh)
-    assert y - hh > 60, (s[:40], y, hh)
+    assert y - hh > LIMIT, (s[:50], y, hh)
     return y - hh
 
 
-def motif(cx, cy, r):
-    c.saveState(); c.setStrokeColor(HexColor('#D9C3B0')); c.setLineWidth(.5)
-    for a in range(0, 360, 60):
-        rad = math.radians(a); c.circle(cx + math.cos(rad) * r * .5, cy + math.sin(rad) * r * .5, r * .65, stroke=1, fill=0)
-    c.circle(cx, cy, r * 1.2, stroke=1, fill=0); c.restoreState()
+def measure(s, width, size=10.5, leading=16, font='Body'):
+    p = Paragraph(escape(s), ParagraphStyle('m', fontName=font, fontSize=size, leading=leading))
+    return p.wrap(width, H)[1]
 
 
-def base(label):
+def bg():
     global page
     page += 1
-    c.setFillColor(HexColor(PAPER)); c.rect(0, 0, W, H, fill=1, stroke=0)
-    c.setFillColor(HexColor('#F3E7DC')); c.circle(W + 70, H - 80, 180, fill=1, stroke=0)
-    motif(W + 10, 50, 95)
-    text('ВЕНЕРА  /  ПОЛНЫЙ ГАЙД', 46, 805, 7.5, color=MUTED)
-    c.setStrokeColor(HexColor('#E0CDBB')); c.setLineWidth(.5); c.line(46, 43, W - 46, 43)
-    text(label, 46, 28, 7, color=MUTED); text(f'{page:02d}', W - 63, 28, 8, color=MUTED)
+    c.drawImage(str(BG), 0, 0, W, H)
+    ctext(f'— {page} —', 24, 8, 'Body', ROSE)
 
 
-def divider(num, title, subtitle):
-    base(title)
-    ctext(f'ЧАСТЬ {num}', 640, 12, 'Body', GOLD)
-    ctext(title, 590, 44, 'Display')
-    c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 50, 555, W / 2 + 50, 555)
-    para(subtitle, 110, 520, 375, 12, 20, MUTED, align=TA_CENTER)
-    c.showPage()
-
-
-def section_head(kicker, title, sub=None):
-    text(kicker, 46, 752, 8, 'Bold', GOLD)
-    text(title, 46, 718, 34, 'Display')
+def header(kicker, title, sub=None, symbol=None):
+    """Centered demo-style header. Returns y (from bottom) below header."""
+    y = H - 62
+    ctext(kicker.upper(), y, 8.5, 'Bold', ROSE); y -= 20
+    ctext(title, y, 30, 'Display', INK); y -= 34
     if sub:
-        text(sub, 46, 692, 10, color=MUTED)
-    return 668 if sub else 690
-
-
-def block_label(y, label):
-    text(label, 46, y, 8, 'Bold', GOLD)
-    return y - 20
-
-
-def bullets(items, y, size=11, leading=17, gap=6):
-    for it in items:
-        text('•', 46, y - 3, size, 'Body', GOLD)
-        y = para(it, 66, y, 483, size, leading) - gap
+        ctext(sub, y, 19, 'Display', ROSE); y -= 26
+    c.setStrokeColor(HexColor(LINE)); c.setLineWidth(.7)
+    c.line(W / 2 - 90, y, W / 2 - 14, y); c.line(W / 2 + 14, y, W / 2 + 90, y)
+    if symbol:
+        ctext(symbol, y - 4, 15, 'Body', GOLD)
+    y -= 30
     return y
+
+
+def label(y, s):
+    text(s.upper(), MARGIN, y, 8.5, 'Bold', ROSE)
+    return y - 16
+
+
+def bullets(items, y, size=10.5, leading=15.5, gap=4):
+    for it in items:
+        c.setFillColor(HexColor(ROSE)); c.circle(MARGIN + 3, y - 4, 2.2, fill=1, stroke=0)
+        y = para(it, MARGIN + 16, y, CW - 16, size, leading) - gap
+    return y
+
+
+def box(y, title, body):
+    """Pink rounded box like the demo. y = top of box (from bottom)."""
+    st = ParagraphStyle('x', fontName='Body', fontSize=10.5, leading=15.5, textColor=HexColor(INK))
+    p = Paragraph(escape(body), st)
+    _, hh = p.wrap(CW - 36, H)
+    top = y; bottom = y - (10 + 14 + hh + 8)
+    assert bottom > LIMIT, (title, bottom)
+    c.setFillColor(HexColor(BOX)); c.setStrokeColor(HexColor(LINE)); c.setLineWidth(.7)
+    c.roundRect(MARGIN, bottom, CW, top - bottom, 10, fill=1, stroke=1)
+    text(title.upper(), MARGIN + 18, top - 24, 8.5, 'Bold', ROSE)
+    p.drawOn(c, MARGIN + 18, top - 30 - hh)
+    return bottom - 12
+
+
+def kv(y, key, val):
+    text(key, MARGIN, y, 10.5, 'Bold', ROSE)
+    return para(val, MARGIN + 62, y, CW - 62, 10.5, 15.5) - 4
 
 
 # ---------- Cover ----------
 page += 1
-c.setFillColor(HexColor('#F3E7DC')); c.rect(0, 0, W, H, fill=1, stroke=0)
-motif(W / 2, 600, 130)
-ctext('ВЕНЕРА', 780, 13, 'Body', GOLD)
-for t, y in [('Полный', 470), ('гайд', 400)]:
-    c.setFillColor(HexColor(INK)); c.setFont('Display', 72); c.drawCentredString(W / 2, y, t)
-c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 55, 362, W / 2 + 55, 362)
-ctext('Любовь · Красота · Притяжение', 325, 12, 'Body', MUTED)
-ctext('Знаки · Дома · Аспекты · Практики', 295, 11, 'Body', MUTED)
-para('Большой подробный гайд по Венере: что она значит в вашей карте и как вывести её в плюс.', 120, 220, 355, 11.5, 19, MUTED, align=TA_CENTER)
+c.drawImage(str(BG), 0, 0, W, H)
+c.setStrokeColor(HexColor(ROSE)); c.setLineWidth(.8)
+c.circle(W / 2, H - 210, 52, stroke=1, fill=0)
+ctext('♀', H - 222, 52, 'Body', ROSE)
+ctext('Венера', H - 330, 78, 'Display', ROSE)
+ctext('полный гайд', H - 372, 30, 'Display', INK)
+c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 55, H - 400, W / 2 + 55, H - 400)
+ctext('ПРИТЯЖЕНИЕ · КРАСОТА · МАГНЕТИЗМ', H - 430, 9, 'Bold', ROSE)
 c.bookmarkPage('cover'); c.addOutlineEntry('Венера — полный гайд', 'cover', 0); c.showPage()
 
 # ---------- Contents ----------
-base('Содержание')
-y = section_head('СОДЕРЖАНИЕ', 'Что внутри')
+bg()
+y = header('Содержание', 'Что внутри')
 toc = [
     ('Введение', 'Что такое Венера и как читать гайд'),
     ('Часть I', 'Венера в знаках — 12 стилей любви и красоты'),
     ('Часть II', 'Венера в домах — 12 сфер жизни'),
-    ('Часть III', 'Аспекты Венеры — связи с другими планетами'),
+    ('Часть III', 'Аспекты Венеры — соединение, трин, секстиль, оппозиция, квадрат'),
     ('Часть IV', 'Архетипы Венеры — 12 лиц богини'),
     ('Часть V', 'Как вывести Венеру в плюс — практики'),
+    ('Часть VI', 'Венера и стихии'),
+    ('Часть VII', 'Венера в крестах'),
+    ('Часть VIII', 'Венера и планеты'),
+    ('Часть IX', 'Венера в транзитах'),
     ('Заключение', 'Ваша Венера уже прекрасна'),
 ]
 for t, d in toc:
-    text(t, 46, y, 15, 'Display', GOLD)
-    y = para(d, 46, y - 22, 503, 11, 17, MUTED) - 18
+    y = para(f'{t} — {d}', MARGIN, y, CW, 11, 16, INK, align=TA_CENTER) - 10
 c.showPage()
+
+
+def divider(num, title, sub):
+    bg()
+    y = header(f'Часть {num}', title, sub)
+    c.bookmarkPage(f'part{num}'); c.addOutlineEntry(f'Часть {num}. {title}', f'part{num}', 0)
+    c.showPage()
+
 
 # ---------- Intro ----------
-base('Введение')
-y = section_head('ВВЕДЕНИЕ', 'Что такое Венера')
+bg()
+y = header('Введение', 'Что такое Венера')
 for sec in data['intro']:
-    y = block_label(y, sec['title'].upper())
+    if y - 18 - measure(sec['paragraphs'][0], CW) < LIMIT:
+        c.showPage(); bg(); y = H - 62
+        ctext('Введение', y, 30, 'Display', INK); y -= 44
+    y = label(y, sec['title'])
     for p in sec['paragraphs']:
-        y = para(p, 46, y, 503, 11, 17.5) - 12
-    y -= 14
-    if y < 200:
-        c.showPage(); base('Введение'); y = 760
+        if y - measure(p, CW) < LIMIT:
+            c.showPage(); bg(); y = H - 62
+            ctext('Введение', y, 30, 'Display', INK); y -= 44
+        y = para(p, MARGIN, y, CW, 10.5, 16) - 10
+    y -= 8
 c.showPage()
 
-# ---------- Part 1: Signs (2 pages each) ----------
-divider('I', 'Венера в знаках', 'Стиль любви и красоты: как Венера проявляется в каждом знаке зодиака.')
+# ---------- Part I: Signs (1 page each, demo layout) ----------
+divider('I', 'Венера в знаках', 'Стиль любви и красоты')
 for s in data['signs']:
-    base(s['title'])
-    y = section_head(s['element'].upper(), s['title'], f'Архетип: {s["archetype"]}')
-    text(s['symbol'], W - 90, 720, 40, 'Body', GOLD)
-    y = para(s['intro'], 46, y, 503, 11, 17.5) - 16
-    y = block_label(y, 'ЧЕМ ЦЕПЛЯЕТ')
-    y = bullets(s['attraction'], y) - 10
-    y = block_label(y, 'КАК ВЫКРУТИТЬ НА МАКСИМУМ')
-    y = bullets(s['amplify'], y)
-    c.showPage()
-    base(s['title'] + ' · продолжение')
-    y = section_head(s['element'].upper(), s['title'], f'Архетип: {s["archetype"]}')
-    text(s['symbol'], W - 90, 720, 40, 'Body', GOLD)
-    y = block_label(y, 'ТЕЛО · ДОМ · СТИЛЬ')
-    y = para(f'Тело: {s["body"]}', 46, y, 503, 11, 17) - 4
-    y = para(f'Дом: {s["home"]}', 46, y, 503, 11, 17) - 4
-    y = para(f'Стиль: {s["style"]}', 46, y, 503, 11, 17) - 12
-    y = block_label(y, 'ЧТО УМЕНЬШАЕТ')
-    y = para(s['diminish'], 46, y, 503, 11, 17) - 12
-    y = block_label(y, 'В ПЛЮСЕ')
-    y = para(s['plus'], 46, y, 503, 11, 17.5)
+    bg()
+    y = header(s['element'], s['title'], f'«{s["archetype"]}»', s['symbol'])
+    y = label(y, 'Чем цепляет')
+    y = bullets(s['attraction'], y) - 4
+    y = label(y, 'Как выкрутить на максимум')
+    y = bullets(s['amplify'], y) - 4
+    y = label(y, 'Как раскрывается')
+    y = kv(y, 'Тело', s['body'])
+    y = kv(y, 'Дом', s['home'])
+    y = kv(y, 'Образ', s['style']) - 4
+    y = label(y, 'В плюсе')
+    y = para(s['plus'], MARGIN, y, CW, 10.5, 15.5) - 8
+    box(y, 'Что гасит магнетизм', s['diminish'])
+    c.bookmarkPage('sign' + s['title']); c.addOutlineEntry(s['title'], 'sign' + s['title'], 1)
     c.showPage()
 
-# ---------- Part 2: Houses (2 pages each) ----------
-divider('II', 'Венера в домах', 'Сфера жизни, где Венера проявляется сильнее всего: дом, деньги, партнёрство, глубина.')
+# ---------- Part II: Houses (1 page each) ----------
+divider('II', 'Венера в домах', 'Сфера жизни, где Венера сильнее всего')
 for h in data['houses']:
-    base(h['title'])
-    y = section_head(f'ДОМ {h["symbol"]}', h['title'], h['sphere'])
-    y = para(h['intro'], 46, y, 503, 11, 17.5) - 14
-    y = block_label(y, 'КАК ПРОЯВЛЯЕТСЯ')
-    y = para(h['express'], 46, y, 503, 11, 17.5) - 14
-    y = block_label(y, 'СИЛЬНЫЕ СТОРОНЫ')
-    y = bullets(h['strengths'], y)
-    c.showPage()
-    base(h['title'] + ' · продолжение')
-    y = section_head(f'ДОМ {h["symbol"]}', h['title'], h['sphere'])
-    y = block_label(y, 'ВЫЗОВЫ')
-    y = bullets(h['challenges'], y) - 10
-    y = block_label(y, 'КАК ВЫВЕСТИ В ПЛЮС')
-    y = para(h['plus'], 46, y, 503, 11, 17.5)
+    bg()
+    y = header(f'Дом {h["symbol"]}', h['title'], h['sphere'])
+    y = para(h['intro'], MARGIN, y, CW, 10.5, 15) - 10
+    y = label(y, 'Как проявляется')
+    y = para(h['express'], MARGIN, y, CW, 10.5, 15) - 4
+    y = label(y, 'Сильные стороны')
+    y = bullets(h['strengths'], y) - 4
+    y = label(y, 'Вызовы')
+    y = bullets(h['challenges'], y) - 6
+    box(y, 'Как вывести в плюс', h['plus'])
+    c.bookmarkPage('house' + h['title']); c.addOutlineEntry(h['title'], 'house' + h['title'], 1)
     c.showPage()
 
-# ---------- Part 3: Aspects (2 pages each) ----------
-divider('III', 'Аспекты Венеры', 'Связи Венеры с другими планетами: что поддерживает, а где бывают трения.')
+# ---------- Part III: Aspects (5 types with planets) ----------
+divider('III', 'Аспекты Венеры', 'Соединение · трин · секстиль · оппозиция · квадрат')
 for a in data['aspects']:
-    base(a['title'])
-    y = section_head('АСПЕКТ', a['title'])
-    text(a['symbol'], W - 90, 720, 40, 'Body', GOLD)
-    y = para(a['intro'], 46, y, 503, 11, 17.5) - 14
-    y = block_label(y, 'СИЛЬНЫЕ СТОРОНЫ')
-    y = bullets(a['strengths'], y)
-    c.showPage()
-    base(a['title'] + ' · продолжение')
-    y = section_head('АСПЕКТ', a['title'])
-    y = block_label(y, 'ВЫЗОВЫ')
-    y = bullets(a['challenges'], y) - 10
-    y = block_label(y, 'КАК ВЫВЕСТИ В ПЛЮС')
-    y = para(a['plus'], 46, y, 503, 11, 17.5)
+    bg()
+    y = header('Аспект', a['title'], None, a['symbol'])
+    y = para(a['intro'], MARGIN, y, CW, 10.5, 15) - 6
+    for pl in ['Солнце', 'Луна', 'Меркурий', 'Марс', 'Юпитер', 'Сатурн', 'Уран', 'Нептун', 'Плутон']:
+        st = ParagraphStyle('pl', fontName='Body', fontSize=9, leading=12, textColor=HexColor(INK))
+        p = Paragraph(f'<b><font color="{ROSE}">{pl}.</font></b> ' + escape(a['planets'][pl]), st)
+        _, hh = p.wrap(CW, H); p.drawOn(c, MARGIN, y - hh)
+        assert y - hh > LIMIT, (pl, y, hh)
+        y = y - hh - 2
+    box(y, 'Как вывести в плюс', a['plus'])
+    c.bookmarkPage('aspect' + a['title']); c.addOutlineEntry(a['title'], 'aspect' + a['title'], 1)
     c.showPage()
 
-# ---------- Part 4: Archetypes (1 page each) ----------
-divider('IV', 'Архетипы Венеры', 'Двенадцать лиц Венеры: найдите свой архетип и его силу.')
+# ---------- Part IV: Archetypes (1 page each) ----------
+divider('IV', 'Архетипы Венеры', 'Двенадцать лиц богини')
 for ar in data['archetypes']:
-    base(ar['name'])
-    y = section_head('АРХЕТИП', ar['name'], f'Знак: {ar["sign"]}')
-    y = para(ar['desc'], 46, y, 503, 12, 19) - 16
-    y = block_label(y, 'СИЛА АРХЕТИПА')
-    y = bullets(ar['strengths'], y) - 10
-    y = block_label(y, 'ТЕНЬ АРХЕТИПА')
-    y = bullets(ar['shadow'], y) - 10
-    y = block_label(y, 'КАК ЖИТЬ В ПЛЮСЕ')
-    y = para(ar['plus'], 46, y, 503, 11, 17.5)
+    bg()
+    y = header('Архетип', ar['name'], f'знак: {ar["sign"]}')
+    y = para(ar['desc'], MARGIN, y, CW, 10.5, 16) - 8
+    y = label(y, 'Сила архетипа')
+    y = bullets(ar['strengths'], y) - 4
+    y = label(y, 'Тень архетипа')
+    y = bullets(ar['shadow'], y) - 4
+    box(y, 'Как жить в плюсе', ar['plus'])
+    c.bookmarkPage('arch' + ar['name']); c.addOutlineEntry(ar['name'], 'arch' + ar['name'], 1)
     c.showPage()
 
-# ---------- Part 5: Practical ----------
-divider('V', 'Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности.')
+# ---------- Part V: Practical (2 pages each) ----------
+divider('V', 'Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности')
 for sec in data['practical']:
-    base(sec['title'])
-    y = section_head('ПРАКТИКА', sec['title'])
+    paras = sec['paragraphs']
+    half = (len(paras) + 1) // 2
+    for chunk in (paras[:half], paras[half:]):
+        bg()
+        y = header('Практика', sec['title'])
+        for p in chunk:
+            y = para(p, MARGIN, y, CW, 10.5, 16) - 10
+        c.showPage()
+
+# ---------- Part VI: Elements ----------
+divider('VI', 'Венера и стихии', 'Огонь · земля · воздух · вода')
+for e in data['elements']:
+    bg()
+    y = header('Стихия', e['title'], e['name'], e['symbol'])
+    y = para(e['intro'], MARGIN, y, CW, 10.5, 16) - 8
+    y = label(y, 'Сильные стороны')
+    y = bullets(e['strengths'], y) - 4
+    y = label(y, 'Вызовы')
+    y = bullets(e['challenges'], y) - 6
+    box(y, 'Как вывести в плюс', e['plus'])
+    c.showPage()
+
+# ---------- Part VII: Crosses ----------
+divider('VII', 'Венера в крестах', 'Кардинальный · фиксированный · мутабельный')
+for cr in data['crosses']:
+    bg()
+    y = header('Крест', cr['title'], cr['name'], cr['symbol'])
+    y = para(cr['intro'], MARGIN, y, CW, 10.5, 16) - 8
+    y = label(y, 'Сильные стороны')
+    y = bullets(cr['strengths'], y) - 4
+    y = label(y, 'Вызовы')
+    y = bullets(cr['challenges'], y) - 6
+    box(y, 'Как вывести в плюс', cr['plus'])
+    c.showPage()
+
+# ---------- Part VIII: Planets ----------
+divider('VIII', 'Венера и планеты', 'Как Венера работает с каждой планетой')
+for pl in data['planets']:
+    bg()
+    y = header('Планета', pl['title'], None, pl['symbol'])
+    y = para(pl['intro'], MARGIN, y, CW, 10.5, 16) - 8
+    y = label(y, 'Сильные стороны')
+    y = bullets(pl['strengths'], y) - 4
+    y = label(y, 'Вызовы')
+    y = bullets(pl['challenges'], y) - 6
+    box(y, 'Как вывести в плюс', pl['plus'])
+    c.showPage()
+
+# ---------- Part IX: Transits ----------
+divider('IX', 'Венера в транзитах', 'Как читать движение Венеры по небу')
+for sec in data['transits']:
+    bg()
+    y = header('Транзиты', sec['title'])
     for p in sec['paragraphs']:
-        y = para(p, 46, y, 503, 11, 17.5) - 12
+        y = para(p, MARGIN, y, CW, 10.5, 16) - 10
+    c.showPage()
+
+# ---------- Questions / Creativity / Health / Karma ----------
+bg()
+y = header('Вопросы', 'Вопросы к себе')
+y = bullets(data['questions'], y, gap=7)
+c.showPage()
+
+for key in ('creativity', 'health', 'karma', 'holidays'):
+    sec = data[key]
+    bg()
+    y = header('Глубже', sec['title'])
+    for p in sec['paragraphs']:
+        y = para(p, MARGIN, y, CW, 10.5, 16) - 10
     c.showPage()
 
 # ---------- Notes ----------
-for i in range(1, 3):
-    base('Дневник Венеры')
-    y = section_head('ДНЕВНИК', 'Дневник Венеры')
-    y = para('Записывайте сюда свои наблюдения: когда Венера приносит вам радость, что вы любите в себе, какие практики работают именно для вас.', 46, y, 503, 11, 17.5, MUTED) - 20
-    for _ in range(9):
-        c.setStrokeColor(HexColor('#D9C3B0')); c.setLineWidth(.5); c.line(46, y, W - 46, y)
-        y -= 62
+for i in range(1, 4):
+    bg()
+    y = header('Дневник', 'Дневник Венеры')
+    y = para('Записывайте сюда свои наблюдения: когда Венера приносит вам радость, что вы любите в себе, какие практики работают именно для вас.', MARGIN, y, CW, 10.5, 15.5, ROSE) - 24
+    for _ in range(7):
+        c.setStrokeColor(HexColor(LINE)); c.setLineWidth(.6); c.line(MARGIN, y, W - MARGIN, y)
+        y -= 46
     c.showPage()
-base('Мои открытия и планы')
-y = section_head('ПЛАНЫ', 'Мои открытия и планы')
-y = para('Что вы узнали о своей Венере и что хотите попробовать в ближайшие недели.', 46, y, 503, 11, 17.5, MUTED) - 20
-for _ in range(10):
-    c.setStrokeColor(HexColor('#D9C3B0')); c.setLineWidth(.5); c.line(46, y, W - 46, y)
-    y -= 58
+bg()
+y = header('Планы', 'Мои открытия и планы')
+y = para('Что вы узнали о своей Венере и что хотите попробовать в ближайшие недели.', MARGIN, y, CW, 10.5, 15.5, ROSE) - 24
+for _ in range(8):
+    c.setStrokeColor(HexColor(LINE)); c.setLineWidth(.6); c.line(MARGIN, y, W - MARGIN, y)
+    y -= 44
 c.showPage()
 
 # ---------- Closing ----------
-base('Заключение')
-y = section_head('ЗАКЛЮЧЕНИЕ', 'Ваша Венера уже прекрасна')
+bg()
+y = header('Заключение', 'Ваша Венера уже прекрасна')
 for p in data['closing']:
-    y = para(p, 46, y, 503, 11.5, 18.5) - 14
+    y = para(p, MARGIN, y, CW, 11, 17) - 12
 c.showPage()
 
 c.save()
@@ -249,13 +331,14 @@ with pymupdf.open(OUT) as pdf:
     full = ''.join(p.get_text() for p in pdf)
     compact = lambda v: ''.join(v.split())
     for s in data['signs']:
-        assert compact(s['intro']) in compact(full), s['title']
-    for h in data['houses']:
-        assert compact(h['intro']) in compact(full), h['title']
+        assert compact(s['plus']) in compact(full), s['title']
     for a in data['aspects']:
-        assert compact(a['intro']) in compact(full), a['title']
+        for pl, t in a['planets'].items():
+            assert compact(t) in compact(full), (a['title'], pl)
+    assert 'синастри' not in full.lower(), 'synastry must be removed'
     for p in pdf:
         for word in p.get_text('words'):
             assert word[0] >= 0 and word[1] >= 0 and word[2] <= W + 1 and word[3] <= H + 1, word
-    pdf[3].get_pixmap(matrix=pymupdf.Matrix(1.2, 1.2)).save('/home/user/venus-guide-preview.png')
-    print(f'Venus guide built: {len(pdf)} pages: {OUT}')
+    for i, name in [(0, 'cover'), (5, 'sign'), (31, 'house'), (37, 'aspect'), (50, 'arch'), (99, 'closing')]:
+        pdf[i].get_pixmap(matrix=pymupdf.Matrix(1.1, 1.1)).save(f'/home/user/v2-{name}.png')
+    print(f'Venus guide v2 built: {len(pdf)} pages: {OUT}')
