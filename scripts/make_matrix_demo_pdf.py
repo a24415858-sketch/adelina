@@ -1,8 +1,9 @@
-"""Expanded free demo (9 pages): cover + matrix + brief descriptions + detailed
-samples of the three highlighted energies + an enticing closing page.
+"""Expanded free demo (12 pages): cover + matrix + brief descriptions with
+'how to bring into plus' + detailed samples of the three highlighted energies
++ an enticing closing page.
 
-Assembles the brief PDF (cover + three brief-description pages), inserts the
-pastel matrix page and the detailed pages for energies 18/11/22 from the full
+Assembles the brief PDF (cover + brief-description pages), inserts the pastel
+matrix page and the detailed pages for energies 18/11/22 from the full
 workbook, and appends a freshly drawn closing page inviting to the full guide.
 """
 from pathlib import Path
@@ -75,8 +76,8 @@ text('Напиши мне, чтобы получить полный гайд', 4
 c.showPage(); c.save()
 
 # --- assemble ---------------------------------------------------------------
-demo = pymupdf.open(BRIEF)                       # cover, sv-brief, an-brief, aj-brief
-assert len(demo) == 4, len(demo)
+demo = pymupdf.open(BRIEF)                       # cover + brief-description pages
+assert len(demo) == 7, len(demo)
 with pymupdf.open(FULL) as src:
     assert len(src) == 70, len(src)
     demo.insert_pdf(src, from_page=1, to_page=1, start_at=1)   # matrix after cover
@@ -86,16 +87,16 @@ with pymupdf.open(FULL) as src:
 with pymupdf.open(TMP) as closing:
     demo.insert_pdf(closing)
 TMP.unlink()
-assert len(demo) == 9, len(demo)
+assert len(demo) == 12, len(demo)
 demo.set_metadata({'title': 'Женские чакры • Демо-версия', 'author': 'Практикум по матрице судьбы'})
 demo.save(OUT, garbage=4, deflate=True)
 
 with pymupdf.open(OUT) as pdf:
-    assert len(pdf) == 9
+    assert len(pdf) == 12
     t = [p.get_text() for p in pdf]
-    assert 'Краткие описания энергий' in t[0]
-    assert 'Три точки внимания' in t[1]
-    assert 'Свадхистана' in t[2] and 'Анахата' in t[3] and 'Аджна' in t[4]
-    assert 'Это только начало' in t[8]
-    pdf[8].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save('/home/user/matrix-demo-close.png')
-print(f'Expanded demo assembled (9 pages): {OUT}')
+    assert 'Краткие описания энергий' in t[0]          # cover
+    assert 'Три точки внимания' in t[1]                # matrix page
+    assert 'Свадхистана' in t[2] and 'в плюс:' in t[2]  # brief page with how-to
+    assert 'Это только начало' in t[11]                # closing page
+    pdf[2].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save('/home/user/matrix-demo-brief.png')
+print(f'Expanded demo assembled (12 pages): {OUT}')
