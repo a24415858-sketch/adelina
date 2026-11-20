@@ -57,17 +57,16 @@ text('ЖЕНСКИЕ ЧАКРЫ  /  МАТРИЦА СУДЬБЫ', 46, 805, 7.5, 
 c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5); c.line(46, 43, W - 46, 43)
 text('Полный гайд', 46, 28, 7, color=MUTED)
 
-# Centered, minimal offer of the full guide (no contents list).
-c.setFillColor(HexColor(INK)); c.setFont('Display', 46)
-c.drawCentredString(W / 2, 705, 'Это только начало')
-c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 55, 672, W / 2 + 55, 672)
-body = Paragraph(
-    escape('В полном гайде — подробные описания всех чакр. Каждая энергия: в плюсе, что может мешать и как вывести в плюс. Семьдесят страниц, которые станут твоим личным путём к себе.'),
-    ParagraphStyle('cb', fontName='Body', fontSize=13, leading=22, textColor=HexColor(INK), alignment=TA_CENTER))
-_, bh = body.wrap(440, H)
-body.drawOn(c, (W - 440) / 2, 600 - bh)
-c.setFillColor(HexColor(INK)); c.setFont('Display', 26)
-c.drawCentredString(W / 2, 478, 'Напиши мне, чтобы получить полный гайд')
+# Beautiful offer of the full guide with the pastel matrix image (no contents list).
+img_size = 270
+c.drawImage(str(ROOT / 'assets/matrix-pastel.png'), W / 2 - img_size / 2, 470, img_size, img_size)
+c.setFillColor(HexColor(INK)); c.setFont('Display', 34)
+c.drawCentredString(W / 2, 425, 'Полный гайд «Женские чакры»')
+c.setFillColor(HexColor(MUTED)); c.setFont('Body', 13)
+c.drawCentredString(W / 2, 388, '70 страниц с описаниями всех чакр')
+c.setStrokeColor(HexColor(GOLD)); c.setLineWidth(.8); c.line(W / 2 - 55, 360, W / 2 + 55, 360)
+c.setFillColor(HexColor(INK)); c.setFont('Display', 24)
+c.drawCentredString(W / 2, 322, 'Напиши мне, чтобы получить полный гайд')
 c.showPage(); c.save()
 
 # --- assemble ---------------------------------------------------------------
@@ -92,6 +91,6 @@ with pymupdf.open(OUT) as pdf:
     assert 'Краткие описания энергий' in t[0]          # cover
     assert 'Три точки внимания' in t[1]                # matrix page
     assert 'Свадхистана' in t[2] and 'в плюс:' in t[2]  # brief page with how-to
-    assert 'Это только начало' in t[11]                # closing page
+    assert 'Полный гайд «Женские чакры»' in t[11] and '70 страниц с описаниями всех чакр' in t[11]  # closing offer
     pdf[2].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save('/home/user/matrix-demo-brief.png')
 print(f'Expanded demo assembled (12 pages): {OUT}')
