@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from xml.sax.saxutils import escape
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy as np
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -39,18 +39,24 @@ c.setFillColor(Color(1,.985,.985,alpha=.60));c.rect(0,0,W,H,stroke=0,fill=1)
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
-# Actual transparent cutout: no photo background, soft panel, frame or edge fade.
+# Transparent silhouette with inward edge feathering; no generated pixels or frame.
 portrait=Image.open(ROOT/'assets/venus-portrait-transparent.png').convert('RGBA')
 w,h=portrait.size
+# Remove the hard cut-paper fringe without blurring facial or hair RGB detail.
+original_alpha=portrait.getchannel('A')
+soft_alpha=original_alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(2.2))
+portrait.putalpha(Image.fromarray(np.minimum(np.asarray(original_alpha),np.asarray(soft_alpha))))
 # Preserve the natural segmented silhouette; absolutely no oval or rounded clipping.
 # Only dissolve the original image's cropped lower boundary, without adding backdrop.
 y,x=np.mgrid[0:h,0:w]
 lower=np.clip((.985-y/(h-1))/.22,0,1)
 lower=lower*lower*(3-2*lower)
-# Thin fade where the source photograph cuts through the wrapping at its right edge.
-side=np.clip((w-1-x)/(w*.04),0,1)
+# Broader transition across cropped bouquet wrapping, not an oval crop.
+side=np.clip((w-1-x)/(w*.16),0,1)
 side=side*side*(3-2*side)
-alpha=np.asarray(portrait.getchannel('A'),dtype=float)*lower*side
+left=np.clip(x/(w*.07),0,1)
+left=left*left*(3-2*left)
+alpha=np.asarray(portrait.getchannel('A'),dtype=float)*lower*side*left
 portrait.putalpha(Image.fromarray(np.uint8(alpha)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
 c.drawImage(ImageReader(portrait),32,425,220,220*h/w,mask='auto')
