@@ -25,7 +25,7 @@ W,H=595.276,841.89
 c=canvas.Canvas(str(OUT),pagesize=(W,H),pageCompression=1)
 c.setTitle('Женские чакры • Энергии 2–22 в плюс')
 c.setAuthor('Практикум по матрице судьбы')
-INK='#F8ECF1';MUTED='#DBAFBF';GOLD='#ED9EB7';PLUM='#301326';PAPER='#321B30'
+INK='#503B4C';MUTED='#826578';GOLD='#A66E87';PLUM='#EFE1E9';PAPER='#FCF7F8'
 page=0
 
 def text(s,x,y,size=11,font='Body',color=INK):
@@ -38,7 +38,7 @@ def para(s,x,y,width,size=10.5,leading=15,color=INK,font='Body'):
     return y-height
 
 def motif(cx,cy,r,dark=False):
-    c.saveState();c.setStrokeColor(HexColor('#92506C' if dark else '#66314D'));c.setLineWidth(.55)
+    c.saveState();c.setStrokeColor(HexColor('#C9A7B9' if dark else '#E8D6E1'));c.setLineWidth(.55)
     for a in range(0,360,60):
         rad=math.radians(a);c.circle(cx+math.cos(rad)*r*.5,cy+math.sin(rad)*r*.5,r*.65,stroke=1,fill=0)
     c.circle(cx,cy,r*1.2,stroke=1,fill=0);c.restoreState()
@@ -47,24 +47,24 @@ def base(label):
     global page
     page+=1
     c.setFillColor(HexColor(PAPER));c.rect(0,0,W,H,fill=1,stroke=0)
-    c.setFillColor(HexColor('#551C36'));c.circle(W+65,H-90,190,fill=1,stroke=0)
+    c.setFillColor(HexColor('#F0E2EB'));c.circle(W+65,H-90,190,fill=1,stroke=0)
     motif(W+8,55,100)
     text('ЖЕНСКИЕ ЧАКРЫ  /  МАТРИЦА СУДЬБЫ',46,805,7.5,color=MUTED)
-    c.setStrokeColor(HexColor('#75415B'));c.setLineWidth(.5);c.line(46,43,W-46,43)
+    c.setStrokeColor(HexColor('#DFC8D5'));c.setLineWidth(.5);c.line(46,43,W-46,43)
     text(label,46,28,7,color=MUTED);text(f'{page:02d}',W-63,28,8,color=MUTED)
 
 # Cover
 page+=1
 c.setFillColor(HexColor(PLUM));c.rect(0,0,W,H,fill=1,stroke=0)
 motif(W/2,595,125,True)
-text('МАТРИЦА СУДЬБЫ',174,775,12,color='#ED9EB7')
+text('МАТРИЦА СУДЬБЫ',174,775,12,color='#A66E87')
 for title,y in [('Женские',441),('чакры',377)]:
-    c.setFillColor(HexColor('#FFF0F4'));c.setFont('Display',70);c.drawCentredString(W/2,y,title)
+    c.setFillColor(HexColor('#624257'));c.setFont('Display',70);c.drawCentredString(W/2,y,title)
 c.setStrokeColor(HexColor(GOLD));c.line(245,340,350,340)
 for s,y in [('Свадхистана · Анахата · Аджна',298),('Как вывести энергии 2–22 в плюс',262)]:
-    c.setFillColor(HexColor('#EAC1CF'));c.setFont('Body',12);c.drawCentredString(W/2,y,s)
-para('Три пространства внимания к себе.\nЖелания, чувства и ясность — через небольшие ежедневные действия.',89,190,417,11,18,'#EAC1CF')
-text('СИМВОЛИЧЕСКИЙ ПРАКТИКУМ ДЛЯ САМОПОЗНАНИЯ',98,68,8,color='#ED9EB7')
+    c.setFillColor(HexColor('#76596D'));c.setFont('Body',12);c.drawCentredString(W/2,y,s)
+para('Три пространства внимания к себе.\nЖелания, чувства и ясность — через небольшие ежедневные действия.',89,190,417,11,18,'#76596D')
+text('СИМВОЛИЧЕСКИЙ ПРАКТИКУМ ДЛЯ САМОПОЗНАНИЯ',98,68,8,color='#A66E87')
 c.bookmarkPage('cover');c.addOutlineEntry('Женские чакры','cover',0);c.showPage()
 
 base('Твоя схема • отмеченные позиции')
@@ -93,7 +93,7 @@ for s in [
 'Найди число у нужной чакры в своей схеме и открой соответствующую энергию. В каждом разделе есть все числа от 2 до 22; энергия 1 намеренно исключена. Это не индивидуальный разбор фотографии.',
 'Прочитай описание как повод для размышления. Если оно не откликается, не подгоняй себя под него. Выбери одно предложенное действие и наблюдай за собственным опытом.',
 'Возвращайся к практике несколько дней. Записывай: что попробовала, что почувствовала, что стало удобнее и что стоит изменить. «Блок» здесь — возможная привычка, а не диагноз.',
-'Использована нумерация: 8 — Справедливость, 11 — Сила, 22 — Шут. В других традициях названия и порядок могут отличаться.']:
+'В Свадхистане каждой энергии посвящена отдельная страница: новое описание и пять практических действий. Выбирай подходящее, а не старайся выполнить всё сразу.']:
     y=para(s,46,y,495,10,15)-14
 c.showPage()
 
@@ -110,36 +110,49 @@ for index,(chakra,theme,motto) in enumerate(sections):
         for slot,row in enumerate(items[offset:offset+step]):
             top=675-slot*289
             n=int(row['energy'])
-            text(f'{n:02d}',46,top-28,35,'Display',GOLD)
-            text(names[n-2],105,top-24,29,'Display')
+            text(str(n),46,top-28,35,'Display',GOLD)
+            # Only the energy number is shown: no arcana names.
             y=top-44
             for label,field in [('В ПЛЮСЕ','plus'),('ЧТО МОЖЕТ МЕШАТЬ','block'),('КАК ВЫВЕСТИ В ПЛЮС','practice')]:
                 text(label,105,y-8,7.2,'Bold',MUTED)
                 y=para(row[field],105,y-16,441,10.3,14.7)-11
             assert y>top-282,(chakra,n,y,top)
             if index!=0 and slot==0 and offset<20:
-                c.setStrokeColor(HexColor('#75415B'));c.line(105,top-275,548,top-275)
+                c.setStrokeColor(HexColor('#DFC8D5'));c.line(105,top-275,548,top-275)
         if index==0:
-            text('Шик — в действиях',46,369,29,'Display')
-            text('ТРИ ИДЕИ ДЛЯ ТВОЕЙ НЕДЕЛИ',46,344,8,'Bold',MUTED)
-            yy=322
+            # Flow the extended practice block after the description, never over it.
+            text('Чувственность в действиях',46,y-15,27,'Display')
+            text('ПЯТЬ ШАГОВ К УДОВОЛЬСТВИЮ И УВЕРЕННОСТИ',46,y-36,7.5,'Bold',MUTED)
+            yy=y-52
             for j,action in enumerate(actions[str(int(items[offset]['energy']))]):
-                text(f'0{j+1}',46,yy-14,18,'Display',GOLD)
-                yy=para(action,82,yy,464,10.6,16)-16
-            para('Выбери одно действие и попробуй его сегодня. Шик — это внимание к себе, а не цена покупок. Заметь, что приносит удовольствие именно тебе.',46,112,495,9.5,14,MUTED)
+                text(f'0{j+1}',46,yy-12,17,'Display',GOLD)
+                yy=para(action,82,yy,464,10.3,14.7)-10
+            assert yy>100, (n, 'action block too low', yy)
+            para('Твой ориентир: больше удовольствия и свободы выбора, а не больше требований к себе. Начни с одного шага.',46,84,495,9,13,MUTED)
         if index!=0 and offset==20:
             text('Небольшой шаг на неделю',46,344,28,'Display')
             para(motto+'. Выбери одну практику из своего описания. Не нужно делать всё сразу: важнее заметить, помогает ли выбранное действие именно тебе.',46,315,492,11,17)
             for yy,question in [(228,'Что я попробовала?'),(172,'Что изменилось в моих ощущениях или действиях?'),(116,'Что я хочу сохранить или изменить?')]:
                 text(question,46,yy,10,color=MUTED)
-                c.setStrokeColor(HexColor('#75415B'));c.line(46,yy-24,547,yy-24)
+                c.setStrokeColor(HexColor('#DFC8D5'));c.line(46,yy-24,547,yy-24)
         c.showPage()
 c.save()
 with pymupdf.open(OUT) as pdf:
     assert len(pdf)==46,len(pdf)
     for i,(chakra,_,_) in enumerate(sections):
         extracted=''.join(p.get_text() for p in list(pdf)[[3,24,35][i]:[24,35,46][i]])
-        for n in range(2,23): assert names[n-2] in extracted,(chakra,n)
+        for row in rows:
+            if row['chakra']==chakra:
+                compact=lambda value: ''.join(value.split())
+                for field in ['plus','block','practice']:
+                    assert compact(row[field]) in compact(extracted),(chakra,row['energy'],field)
+    fulltext=''.join(p.get_text() for p in pdf)
+    for name in names:
+        assert name not in fulltext, ('Unexpected arcana name', name)
+    for n in range(2,23):
+        page_text=compact(pdf[n+1].get_text())
+        assert len(actions[str(n)])==5
+        for action in actions[str(n)]: assert compact(action) in page_text,(n,action)
     for p in pdf:
         for word in p.get_text('words'):
             assert word[0]>=0 and word[1]>=0 and word[2]<=W+1 and word[3]<=H+1,word
