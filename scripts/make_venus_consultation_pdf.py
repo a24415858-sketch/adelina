@@ -43,24 +43,18 @@ centered(d['title'],746,size=44,color=ROSE)
 # Use the exact approved portrait: no new generation, recoloring or face retouch.
 portrait=Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGBA')
 assert portrait.size==(680,960)
-# Hand-drawn silhouette removes the studio backdrop; only alpha is changed.
-mask=Image.new('L',portrait.size)
-outline=[(190,55),(244,42),(294,48),(338,62),(373,88),(404,134),
-         (425,183),(449,225),(450,277),(480,316),(493,365),(479,395),
-         (540,401),(618,422),(680,451),(680,960),(0,960),(0,650),
-         (20,573),(11,547),(34,487),(52,447),(66,401),(60,353),
-         (62,287),(82,233),(83,177),(106,121),(135,85)]
-ImageDraw.Draw(mask).polygon(outline,fill=255)
-alpha=np.asarray(mask.filter(ImageFilter.GaussianBlur(3)),dtype=float)
+# Preserve the entire curl silhouette from the exact referenced version (3e21ec6).
+# Only soften outer image margins; do not trace, crop or reshape any curls.
 h,w=960,680
 y,x=np.mgrid[0:h,0:w]
-bottom=np.clip((h-1-y)/(h*.17),0,1)
-right=np.clip((w-1-x)/(w*.07),0,1)
-alpha*=bottom*bottom*(3-2*bottom)*right*right*(3-2*right)
-portrait.putalpha(Image.fromarray(np.uint8(alpha)))
-# The center of the face is completely opaque; the RGB pixels remain untouched.
+alpha=np.ones((h,w),dtype=float)
+for edge in [np.clip(x/8,0,1),np.clip((w-1-x)/100,0,1),
+             np.clip(y/25,0,1),np.clip((h-1-y)/115,0,1)]:
+    alpha*=edge*edge*(3-2*edge)
+portrait.putalpha(Image.fromarray(np.uint8(alpha*255)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-approved-portrait-loose-curls.png').convert('RGB')))
-c.drawImage(ImageReader(portrait),29,425,228,305,mask='auto')
+# Restore the original reference scale/aspect rather than widening the hairstyle.
+c.drawImage(ImageReader(portrait),48,432,190,268,mask='auto')
 end=paragraph(d['intro_title'],263,690,282,font='ConsultDisplay',size=29,leading=31,color=ROSE)
 end=paragraph(d['intro'],263,end-20,278,size=11.7,leading=18.3)
 assert end>436,end
