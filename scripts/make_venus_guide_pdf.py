@@ -130,6 +130,7 @@ toc = [
     ('Архетипы Венеры', '12 лиц богини'),
     ('Как вывести Венеру в плюс', 'Практики красоты, удовольствия, любви и самоценности'),
     ('Венера и стихии', 'Огонь, земля, воздух, вода'),
+    ('Венера в жизни', 'Внешность, партнёрство, деньги, семья, путешествия'),
     ('Вопросы к себе', 'Творчество, здоровье, карма, праздники'),
     ('Заключение', 'Ваша Венера уже прекрасна'),
 ]
@@ -138,16 +139,15 @@ for t, d in toc:
 c.showPage()
 
 
-# ---------- Intro (3 balanced pages) ----------
-for chunk in (data['intro'][:1], data['intro'][1:2], data['intro'][2:]):
-    bg()
-    y = header('Введение', 'Что такое Венера')
-    for sec in chunk:
-        y = label(y, sec['title'])
-        for p in sec['paragraphs']:
-            y = para(p, MARGIN, y, CW, 10.5, 14.5) - 10
-        y -= 8
-    c.showPage()
+# ---------- Intro (1 page) ----------
+bg()
+y = header('Введение', 'Что такое Венера')
+for sec in data['intro']:
+    y = label(y, sec['title'])
+    for p in sec['paragraphs']:
+        y = para(p, MARGIN, y, CW, 10, 13) - 6
+    y -= 6
+c.showPage()
 
 # ---------- Part I: Signs (1 page each, demo layout) ----------
 for s in data['signs']:
@@ -228,6 +228,18 @@ for e in data['elements']:
     y = label(y, 'Вызовы')
     y = bullets(e['challenges'], y) - 6
     box(y, 'Как вывести в плюс', e['plus'])
+    c.showPage()
+
+# ---------- Themes ----------
+for th in data['themes']:
+    bg()
+    y = header('Тема', th['title'], None, th['symbol'])
+    y = para(th['intro'], MARGIN, y, CW, 10.5, 15) - 8
+    y = label(y, 'Сильные стороны')
+    y = bullets(th['strengths'], y) - 4
+    y = label(y, 'Вызовы')
+    y = bullets(th['challenges'], y) - 6
+    box(y, 'Как вывести в плюс', th['plus'])
     c.showPage()
 
 # ---------- Questions / Creativity / Health / Karma ----------
