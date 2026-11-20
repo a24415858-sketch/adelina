@@ -13,7 +13,7 @@ import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'documents/Luna_polny_gayd.pdf'
-BG = ROOT / 'assets/pearl-ocean-background.jpg'
+BG = ROOT / 'assets/pearl-treasure-soft.jpg'
 data = json.loads((ROOT / 'assets/moon-guide-content.json').read_text())
 
 pdfmetrics.registerFont(TTFont('Display', str(ROOT / 'assets/CormorantGaramond.ttf')))
@@ -111,10 +111,11 @@ def kv(y, key, val):
 page += 1
 c.drawImage(str(BG), 0, 0, W, H)
 c.setStrokeColor(HexColor(ACCENT)); c.setLineWidth(.8)
-c.circle(W / 2, H - 210, 52, stroke=1, fill=0)
-ctext('☽', H - 222, 52, 'Body', ACCENT)
-ctext('Луна', H - 330, 78, 'Display', ACCENT)
-ctext('полный гайд', H - 372, 30, 'Display', INK)
+c.circle(W / 2, H - 190, 46, stroke=1, fill=0)
+ctext('☽', H - 201, 46, 'Body', ACCENT)
+ctext('Луна', H - 300, 92, 'Display', ACCENT)
+ctext('в знаках зодиака', H - 340, 26, 'Display', INK)
+ctext('полный гайд', H - 372, 20, 'Display', ACCENT)
 c.setStrokeColor(HexColor(SILVER)); c.setLineWidth(.8); c.line(W / 2 - 55, H - 400, W / 2 + 55, H - 400)
 ctext('ЭМОЦИИ · КОМФОРТ · ДОМ', H - 430, 9, 'Bold', ACCENT)
 c.bookmarkPage('cover'); c.addOutlineEntry('Луна — полный гайд', 'cover', 0); c.showPage()
