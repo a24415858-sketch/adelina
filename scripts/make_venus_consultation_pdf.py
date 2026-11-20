@@ -2,8 +2,7 @@
 from pathlib import Path
 import json
 from xml.sax.saxutils import escape
-from PIL import Image, ImageOps, ImageFilter, ImageDraw
-from collections import deque
+from PIL import Image
 import numpy as np
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -35,28 +34,23 @@ def paragraph(s,x,top,width,font='ConsultBody',size=11.2,leading=17,color=INK):
     return top-height
 
 c.drawImage(str(ROOT/'assets/venus-background.jpg'),0,0,W,H)
-# A quiet translucent veil leaves the silk texture visible behind the editorial layout.
-c.setFillColor(Color(1,.985,.985,alpha=.68));c.roundRect(28,79,W-56,H-104,18,stroke=0,fill=1)
+# One continuous page background: no card, frame or rounded panel.
+c.setFillColor(Color(1,.985,.985,alpha=.60));c.rect(0,0,W,H,stroke=0,fill=1)
 centered(d['label'],790,font='ConsultBody',size=8,color=ROSE)
 centered(d['title'],746,size=44,color=ROSE)
 
 # Actual transparent cutout: no photo background, soft panel, frame or edge fade.
 portrait=Image.open(ROOT/'assets/venus-portrait-transparent.png').convert('RGBA')
 w,h=portrait.size
-# Remove the rectangular photo's remaining garment/bouquet corners with a curved
-# transparent contour. The face and curls are outside this lower-edge adjustment.
+# Preserve the natural segmented silhouette; absolutely no oval or rounded clipping.
+# Only dissolve the original image's cropped lower boundary, without adding backdrop.
 y,x=np.mgrid[0:h,0:w]
-xn=x/(w-1);yn=y/(h-1)
-# An elliptical lower silhouette has no junctions or right-angle corners.
-radius=np.sqrt(((xn-.50)/.49)**2+((yn-.45)/.54)**2)
-edge=np.clip((1-radius)*min(w,h)/2,0,1)
-# Dissolve only the lower garment/bouquet into transparency. Start earlier at the
-# two bottom corners, so neither the original crop nor the ellipse leaves a lip.
-lower_end=.985-.19*np.clip(np.abs(xn-.5)/.5,0,1)**1.6
-lower=np.clip((lower_end-yn)/.24,0,1)
+lower=np.clip((.985-y/(h-1))/.22,0,1)
 lower=lower*lower*(3-2*lower)
-edge*=lower
-alpha=np.asarray(portrait.getchannel('A'),dtype=float)*edge
+# Thin fade where the source photograph cuts through the wrapping at its right edge.
+side=np.clip((w-1-x)/(w*.04),0,1)
+side=side*side*(3-2*side)
+alpha=np.asarray(portrait.getchannel('A'),dtype=float)*lower*side
 portrait.putalpha(Image.fromarray(np.uint8(alpha)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
 c.drawImage(ImageReader(portrait),32,425,220,220*h/w,mask='auto')
@@ -72,8 +66,7 @@ paragraph(d['aspects_title'],319,375,230,font='ConsultDisplay',size=24,leading=2
 b2=paragraph(d['aspects'],319,342,227,size=10.8,leading=16)
 assert min(b1,b2)>257,(b1,b2)
 
-c.setFillColor(Color(.98,.91,.93,alpha=.96));c.setStrokeColor(LINE)
-c.roundRect(43,101,W-86,148,12,stroke=1,fill=1)
+# Offer text also sits directly on the same background, without a box.
 centered(d['offer_title'],222,size=24,color=ROSE)
 b=paragraph(d['offer'],61,206,W-122,size=10.5,leading=15.5)
 assert b>151,b
