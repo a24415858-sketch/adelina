@@ -23,7 +23,7 @@ for page in list(pdf)[:13]:
             continue
         if any(abs(r.width-page.rect.width)<1 and abs(r.height-page.rect.height)<1
                for r in page.get_image_rects(xref)):
-            page.replace_image(xref, filename=str(ROOT/'assets/venus-silk-background.jpg'))
+            page.replace_image(xref, filename=str(ROOT/'assets/venus-silk-shell-background.jpg'))
             replaced.add(xref)
 assert replaced, 'Reference must contain a full-page background'
 toc=pdf.get_toc()
