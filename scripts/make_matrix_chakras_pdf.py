@@ -134,9 +134,40 @@ for index,(chakra,theme,motto) in enumerate(sections):
         ]
         para(footers[index],46,84,495,9,13,MUTED)
         c.showPage()
+# Four closing pages: notes for each chakra and a final reflection (66 -> 70 pages).
+for note_title, note_theme in [
+    ('Заметки по Свадхистане', 'Желания • удовольствие • творчество'),
+    ('Заметки по Анахате', 'Чувства • близость • границы'),
+    ('Заметки по Аджне', 'Восприятие • ясность • выбор'),
+]:
+    base('Твои заметки')
+    text(note_title, 46, 742, 34, 'Display')
+    text(note_theme, 46, 712, 10, color=MUTED)
+    y = 664
+    while y > 92:
+        c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5)
+        c.line(46, y, W-46, y)
+        y -= 40
+    c.showPage()
+
+base('Мои открытия и планы')
+text('Мои открытия и планы', 46, 742, 34, 'Display')
+para('Запиши, какие практики откликнулись сильнее всего и что ты хочешь сохранить в своей жизни.', 46, 710, 495, 11, 17)
+y = 648
+for prompt in [
+    'Что я попробовала и что почувствовала?',
+    'Какие маленькие удовольствия стали частью моей жизни?',
+    'Где я стала мягче к себе и яснее в отношениях?',
+    'Какой один шаг я сделаю на этой неделе?',
+]:
+    text(prompt, 46, y, 11, color=MUTED)
+    c.setStrokeColor(HexColor('#DFC8D5')); c.setLineWidth(.5)
+    c.line(46, y-30, W-46, y-30)
+    y -= 118
+c.showPage()
 c.save()
 with pymupdf.open(OUT) as pdf:
-    assert len(pdf)==66,len(pdf)
+    assert len(pdf)==70,len(pdf)
     for i,(chakra,_,_) in enumerate(sections):
         extracted=''.join(p.get_text() for p in list(pdf)[3+i*21:24+i*21])
         for row in rows:
@@ -159,4 +190,4 @@ with pymupdf.open(OUT) as pdf:
         for word in p.get_text('words'):
             assert word[0]>=0 and word[1]>=0 and word[2]<=W+1 and word[3]<=H+1,word
     pdf[3].get_pixmap(matrix=pymupdf.Matrix(1.2,1.2)).save('/home/user/matrix-preview.png')
-print(f'Verified {len(rows)} readings across 66 pages: {OUT}')
+print(f'Verified {len(rows)} readings across 70 pages: {OUT}')
