@@ -50,6 +50,12 @@ xn=x/(w-1);yn=y/(h-1)
 # An elliptical lower silhouette has no junctions or right-angle corners.
 radius=np.sqrt(((xn-.50)/.49)**2+((yn-.45)/.54)**2)
 edge=np.clip((1-radius)*min(w,h)/2,0,1)
+# Dissolve only the lower garment/bouquet into transparency. Start earlier at the
+# two bottom corners, so neither the original crop nor the ellipse leaves a lip.
+lower_end=.985-.19*np.clip(np.abs(xn-.5)/.5,0,1)**1.6
+lower=np.clip((lower_end-yn)/.24,0,1)
+lower=lower*lower*(3-2*lower)
+edge*=lower
 alpha=np.asarray(portrait.getchannel('A'),dtype=float)*edge
 portrait.putalpha(Image.fromarray(np.uint8(alpha)))
 assert np.array_equal(np.asarray(portrait)[:,:,:3],np.asarray(Image.open(ROOT/'assets/venus-user-selected-portrait.png').convert('RGB')))
