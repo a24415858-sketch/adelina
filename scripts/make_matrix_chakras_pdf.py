@@ -53,14 +53,14 @@ def motif(cx,cy,r,dark=False):
 LEOPARD=str(ROOT/'assets/leopard-paper.png')
 LEOPARD_COVER=str(ROOT/'assets/leopard-plum.png')
 def leopard(x,y,w):
-    c.drawImage(LEOPARD,x,y,w,w*1.5)
+    c.drawImage(LEOPARD,x,y,w,w*1.499)
 def base(label,leopard_w=95):
     global page
     page+=1
     c.setFillColor(HexColor(PAPER));c.rect(0,0,W,H,fill=1,stroke=0)
     c.setFillColor(HexColor('#EFE6D4'));c.circle(W+65,H-90,190,fill=1,stroke=0)
     motif(W+8,55,100)
-    leopard(W-40-leopard_w,H-38-leopard_w*1.5,leopard_w)
+    leopard(W-40-leopard_w,H-38-leopard_w*1.499,leopard_w)
     text('ЖЕНСКИЕ ЧАКРЫ  /  МАТРИЦА СУДЬБЫ',46,805,7.5,color=MUTED)
     c.setStrokeColor(HexColor('#D9CBB2'));c.setLineWidth(.5);c.line(46,43,W-46,43)
     text(label,46,28,7,color=MUTED);text(f'{page:02d}',W-63,28,8,color=MUTED)
@@ -73,7 +73,7 @@ text('МАТРИЦА СУДЬБЫ',174,800,12,color='#B08D57')
 for title,y in [('Женские',712),('чакры',648)]:
     c.setFillColor(HexColor('#4A3F35'));c.setFont('Display',64);c.drawCentredString(W/2,y,title)
 c.setStrokeColor(HexColor(GOLD));c.line(245,612,350,612)
-c.drawImage(LEOPARD_COVER,W/2-115,232,230,345)
+c.drawImage(LEOPARD_COVER,W/2-115,232,230,230*1.499)
 for s,y in [('Свадхистана · Анахата · Аджна',196),('Как вывести энергии в плюс',164)]:
     c.setFillColor(HexColor('#6B5D4F'));c.setFont('Body',12);c.drawCentredString(W/2,y,s)
 para('Три пространства внимания к себе.\nЖелания, чувства и ясность — через небольшие ежедневные действия.',89,118,417,11,18,'#6B5D4F')
