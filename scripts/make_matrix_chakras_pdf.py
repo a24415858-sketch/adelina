@@ -12,7 +12,14 @@ import pymupdf
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'documents/Matrix_zhenskie_chakry.pdf'
-actions=json.loads((ROOT/'assets/svadhisthana-actions.json').read_text())
+actions_by_chakra={
+    'Свадхистана': json.loads((ROOT/'assets/svadhisthana-actions.json').read_text()),
+    'Анахата': json.loads((ROOT/'assets/anahata-actions.json').read_text()),
+    'Аджна': json.loads((ROOT/'assets/ajna-actions.json').read_text()),
+}
+for entries in actions_by_chakra.values():
+    assert set(entries)=={str(n) for n in range(2,23)}
+    assert all(len(points)==3 for points in entries.values())
 rows=list(csv.DictReader((ROOT/'assets/matrix-chakras.tsv').open(), delimiter='\t'))
 names=['Жрица','Императрица','Император','Иерофант','Влюблённые','Колесница','Справедливость','Отшельник','Колесо Фортуны','Сила','Повешенный','Смерть','Умеренность','Дьявол','Башня','Звезда','Луна','Солнце','Суд','Мир','Шут']
 sections=[('Свадхистана','Желания • удовольствие • творчество','Разрешать себе чувствовать'),('Анахата','Чувства • близость • границы','Любить, не теряя себя'),('Аджна','Восприятие • ясность • выбор','Видеть ясно и выбирать осознанно')]
@@ -85,60 +92,53 @@ y=para('Здесь «вывести в плюс» означает выбрат�
 y=para('Это авторские символические трактовки матрицы судьбы, а не научная оценка личности, медицинская диагностика или обещание результата. Чакры не используются здесь для определения заболеваний. Женский фокус — обращение к читательнице, а не набор обязательных женских качеств.',46,y-19,495,10.5,16)
 y-=34
 for i,(name,theme,_) in enumerate(sections):
-    start=[4,25,36][i]
-    end=[24,35,46][i]
+    start=4+i*21
+    end=start+20
     text(f'0{i+1}  {name}',46,y,22,'Display');text(f'{start}–{end}',485,y,11,color=MUTED)
     y=para(theme,46,y-12,470,10,15)-27
 for s in [
 'Найди число у нужной чакры в своей схеме и открой соответствующую энергию. В каждом разделе есть все числа от 2 до 22; энергия 1 намеренно исключена. Это не индивидуальный разбор фотографии.',
 'Прочитай описание как повод для размышления. Если оно не откликается, не подгоняй себя под него. Выбери одно предложенное действие и наблюдай за собственным опытом.',
 'Возвращайся к практике несколько дней. Записывай: что попробовала, что почувствовала, что стало удобнее и что стоит изменить. «Блок» здесь — возможная привычка, а не диагноз.',
-'В Свадхистане каждой энергии посвящена отдельная страница: описание и три развёрнутых практических пункта. Выбирай подходящее, а не старайся выполнить всё сразу.']:
+'Во всех трёх разделах каждой энергии посвящена отдельная страница: описание и три развёрнутых практических пункта. Выбирай подходящее, а не старайся выполнить всё сразу.']:
     y=para(s,46,y,495,10,15)-14
 c.showPage()
 
 for index,(chakra,theme,motto) in enumerate(sections):
     items=[r for r in rows if r['chakra']==chakra]
-    step=1 if index==0 else 2
-    for offset in range(0,21,step):
+    actions=actions_by_chakra[chakra]
+    for offset,row in enumerate(items):
         base(chakra+' • Энергии 2–22')
         if offset==0:
             c.bookmarkPage('section'+str(index));c.addOutlineEntry(chakra,'section'+str(index),0)
         text(f'0{index+1}',47,747,15,'Body',GOLD)
         text(chakra,86,742,38,'Display')
         text(theme,47,714,10,color=MUTED)
-        for slot,row in enumerate(items[offset:offset+step]):
-            top=675-slot*289
-            n=int(row['energy'])
-            text(str(n),46,top-28,35,'Display',GOLD)
-            # Only the energy number is shown: no arcana names.
-            y=top-44
-            for label,field in [('В ПЛЮСЕ','plus'),('ЧТО МОЖЕТ МЕШАТЬ','block'),('КАК ВЫВЕСТИ В ПЛЮС','practice')]:
-                text(label,105,y-8,7.2,'Bold',MUTED)
-                y=para(row[field],105,y-16,441,10.3,14.7)-11
-            assert y>top-282,(chakra,n,y,top)
-            if index!=0 and slot==0 and offset<20:
-                c.setStrokeColor(HexColor('#DFC8D5'));c.line(105,top-275,548,top-275)
-        if index==0:
-            # Flow the extended practice block after the description, never over it.
-            yy=y-25
-            for j,action in enumerate(actions[str(int(items[offset]['energy']))]):
-                text(f'0{j+1}',46,yy-12,17,'Display',GOLD)
-                yy=para(action,82,yy,464,10.3,15.2)-18
-            assert yy>100, (n, 'action block too low', yy)
-            para('Твой ориентир: больше удовольствия и свободы выбора, а не больше требований к себе. Начни с одного шага.',46,84,495,9,13,MUTED)
-        if index!=0 and offset==20:
-            text('Небольшой шаг на неделю',46,344,28,'Display')
-            para(motto+'. Выбери одну практику из своего описания. Не нужно делать всё сразу: важнее заметить, помогает ли выбранное действие именно тебе.',46,315,492,11,17)
-            for yy,question in [(228,'Что я попробовала?'),(172,'Что изменилось в моих ощущениях или действиях?'),(116,'Что я хочу сохранить или изменить?')]:
-                text(question,46,yy,10,color=MUTED)
-                c.setStrokeColor(HexColor('#DFC8D5'));c.line(46,yy-24,547,yy-24)
+        top=675
+        n=int(row['energy'])
+        text(str(n),46,top-28,35,'Display',GOLD)
+        y=top-44
+        for label,field in [('В ПЛЮСЕ','plus'),('ЧТО МОЖЕТ МЕШАТЬ','block'),('КАК ВЫВЕСТИ В ПЛЮС','practice')]:
+            text(label,105,y-8,7.2,'Bold',MUTED)
+            y=para(row[field],105,y-16,441,10.3,14.7)-11
+        assert y>top-282,(chakra,n,y,top)
+        yy=y-25
+        for j,action in enumerate(actions[str(n)]):
+            text(f'0{j+1}',46,yy-12,17,'Display',GOLD)
+            yy=para(action,82,yy,464,10.3,15.2)-18
+        assert yy>100, (chakra,n,'action block too low',yy)
+        footers=[
+            'Твой ориентир: больше удовольствия и свободы выбора, а не больше требований к себе. Начни с одного шага.',
+            'Твой ориентир: больше взаимности и тепла, без отказа от собственных границ. Начни с одного шага.',
+            'Твой ориентир: больше ясности и самостоятельности, без требования знать всё заранее. Начни с одного шага.'
+        ]
+        para(footers[index],46,84,495,9,13,MUTED)
         c.showPage()
 c.save()
 with pymupdf.open(OUT) as pdf:
-    assert len(pdf)==46,len(pdf)
+    assert len(pdf)==66,len(pdf)
     for i,(chakra,_,_) in enumerate(sections):
-        extracted=''.join(p.get_text() for p in list(pdf)[[3,24,35][i]:[24,35,46][i]])
+        extracted=''.join(p.get_text() for p in list(pdf)[3+i*21:24+i*21])
         for row in rows:
             if row['chakra']==chakra:
                 compact=lambda value: ''.join(value.split())
@@ -149,12 +149,14 @@ with pymupdf.open(OUT) as pdf:
     assert 'ПЯТЬ ШАГОВ' not in fulltext
     for name in names:
         assert name not in fulltext, ('Unexpected arcana name', name)
-    for n in range(2,23):
-        page_text=compact(pdf[n+1].get_text())
-        assert len(actions[str(n)])==3
-        for action in actions[str(n)]: assert compact(action) in page_text,(n,action)
+    for i,(chakra,_,_) in enumerate(sections):
+        for n in range(2,23):
+            page_text=compact(pdf[3+i*21+n-2].get_text())
+            points=actions_by_chakra[chakra][str(n)]
+            assert len(points)==3
+            for action in points: assert compact(action) in page_text,(chakra,n,action)
     for p in pdf:
         for word in p.get_text('words'):
             assert word[0]>=0 and word[1]>=0 and word[2]<=W+1 and word[3]<=H+1,word
     pdf[3].get_pixmap(matrix=pymupdf.Matrix(1.2,1.2)).save('/home/user/matrix-preview.png')
-print(f'Verified {len(rows)} readings across 46 pages: {OUT}')
+print(f'Verified {len(rows)} readings across 66 pages: {OUT}')
