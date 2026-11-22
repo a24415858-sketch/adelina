@@ -13,7 +13,7 @@ from reportlab.lib.utils import ImageReader
 import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'documents/Venera_chem_ceptlyaet_brand.pdf'
+OUT = ROOT / 'documents/Venera_brand_novyi_dizain.pdf'
 data = json.loads((ROOT / 'assets/venus-content.json').read_text())
 # Crops are taken directly from the newly supplied collage, without regenerating faces.
 collage = Image.open(ROOT / 'assets/venus-brand-reference.webp').convert('RGB')
@@ -47,56 +47,61 @@ def para(s,x,y,width,size=10.4,leading=15.2):
 def image_cover(image,x,y,w,h):
     im=ImageReader(image); iw,ih=im.getSize(); scale=max(w/iw,h/ih); ww,hh=iw*scale,ih*scale
     c.saveState(); clip=c.beginPath(); clip.rect(x,y,w,h); c.clipPath(clip,stroke=0,fill=0)
-    c.drawImage(im,x+(w-ww)/2,y+h-hh,ww,hh); c.restoreState()
+    vertical = y+(h-hh)/2 if image is photos[0] and w < 280 else y+h-hh
+    c.drawImage(im,x+(w-ww)/2,vertical,ww,hh); c.restoreState()
 def base(): fill(BG); c.rect(0,0,W,H,fill=1,stroke=0)
 
-# Cover: editorial composition based on the user's own photo, not the old shell design.
+# Cover: a full-height portrait and typography in the reference's magazine grid.
 base()
-text('VENUS  /  PERSONAL GUIDE',38, H-52, 8.5,'Bold',ACCENT)
-right('01',W-38,H-55,22,'Display',ACCENT)
-line(38,H-67,W-38,H-67)
-image_cover(photos[0],263,296,294,427)
-text('Венера',38,660,62,'Display')
-text('чем',40,606,38,'Display')
-text('цепляет',40,568,38,'Display')
-line(40,543,220,543)
-text('В ЗНАКАХ',40,511,9,'Bold',ACCENT)
-text('ЗОДИАКА',40,493,9,'Bold',ACCENT)
-text('Красота вашей',40,407,19,'Display')
-text('индивидуальности',40,385,19,'Display')
-line(38,271,W-38,271)
-image_cover(photos[2],38,63,161,181)
-image_cover(photos[3],217,63,161,181)
-image_cover(photos[6],396,63,161,181)
+fill(PAPER); c.rect(0,0,237,H,fill=1,stroke=0)
+image_cover(photos[0],237,165,W-237,H-165)
+text('VENUS',35,H-64,10,'Bold',ACCENT)
+line(35,H-81,200,H-81)
+text('Венера',35,616,54,'Display')
+text('чем',35,565,37,'Display')
+text('цепляет',35,526,37,'Display')
+line(35,493,178,493)
+text('В ЗНАКАХ',35,464,8.5,'Bold',ACCENT)
+text('ЗОДИАКА',35,446,8.5,'Bold',ACCENT)
+text('Красота',35,358,20,'Display')
+text('вашей',35,334,20,'Display')
+text('индивидуальности',35,310,18,'Display')
+line(35,109,200,109)
+text('PERSONAL GUIDE',35,82,8,'Bold',ACCENT)
+# A short photo strip uses images from the new reference, without shells.
+image_cover(photos[2],237,0,(W-237)/2,165)
+image_cover(photos[6],237+(W-237)/2,0,(W-237)/2,165)
 c.bookmarkPage('cover'); c.addOutlineEntry('Венера — чем цепляет','cover',0); c.showPage()
 
-pairs=[(1,2),(3,4),(5,6),(7,1),(2,3),(4,7)]
+pairs=[(1,2),(3,4),(5,6),(7,0),(2,3),(4,7)]
 for chunk in range(0,12,2):
     page=2+chunk//2; base()
-    text('ВЕНЕРА  /  В ЗНАКАХ',38,H-48,8.5,'Bold',ACCENT)
-    right(f'{page:02d}',W-38,H-52,23,'Display',ACCENT)
-    line(38,H-64,W-38,H-64)
-    text('Чем цепляет',38,H-110,37,'Display')
-    line(38,H-127,W-38,H-127)
-    y=H-158
+    text('ВЕНЕРА  /  В ЗНАКАХ',26,H-37,8.5,'Bold',ACCENT)
+    right(f'{page:02d}',W-26,H-40,22,'Display',ACCENT)
+    line(26,H-51,W-26,H-51)
+    gutter=12; margin=26; cw=(W-2*margin-gutter)/2
     for n,s in enumerate(data[chunk:chunk+2]):
-        text(s['title'],38,y,26,'Display')
-        right(s['symbol'],W-40,y,18,'Body',ACCENT)
+        x=margin+n*(cw+gutter)
+        fill(PAPER); c.rect(x,50,cw,734,fill=1,stroke=0)
+        # Reference layout: photograph above the light editorial text panel.
+        image_cover(photos[pairs[chunk//2][n]],x,491,cw,293)
+        y=457
+        # Scale only if the title needs a little more room.
+        size=25
+        while pdfmetrics.stringWidth(s['title'],'Display',size)>cw-30: size-=0.5
+        fill(INK); c.setFont('Display',size); c.drawCentredString(x+cw/2,y,s['title'])
+        y-=25
+        fill(ACCENT); c.setFont('Display',17); c.drawCentredString(x+cw/2,y,'«'+s['archetype']+'»')
         y-=23
-        text('«'+s['archetype']+'»',38,y,17,'Display',ACCENT)
-        y-=24
-        text('ЧЕМ ЦЕПЛЯЕТ',38,y,8,'Bold',ACCENT); y-=12
-        for b in s['attraction']:
-            fill(ACCENT); c.circle(41,y-5,1.7,fill=1,stroke=0)
-            y=para(b,52,y,W-90)-6
-        if n==0:
-            y-=7; line(38,y,W-38,y); y-=30
+        line(x+26,y,x+cw-26,y)
+        y-=28
+        text('ЧЕМ ЦЕПЛЯЕТ',x+19,y,8,'Bold',ACCENT); y-=16
+        for item in s['attraction']:
+            fill(ACCENT); c.circle(x+21,y-5,1.7,fill=1,stroke=0)
+            y=para(item,x+30,y,cw-49,size=10.2,leading=15.6)-9
+        assert y>95,(page,s['title'],y)
+        fill(ACCENT); c.setFont('Body',16); c.drawCentredString(x+cw/2,78,s['symbol'])
         c.bookmarkPage('sign'+s['title']); c.addOutlineEntry(s['title'],'sign'+s['title'],1)
-    assert y>250,(page,y)
-    # Two portraits make a clean photographic footer, echoing the reference grid.
-    i,j=pairs[chunk//2]
-    image_cover(photos[i],38,48,253,178)
-    image_cover(photos[j],304,48,253,178)
     c.showPage()
 c.save()
 with pymupdf.open(OUT) as pdf:
