@@ -12,7 +12,7 @@ from reportlab.lib.utils import ImageReader
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT/'assets/energies_2_22_user_text.md'
-OUT = ROOT/'documents/Energii_2_22_zhemchuzhny_gayd.pdf'
+OUT = ROOT/'documents/Energii_2_22_obshchiy_potencial.pdf'
 pdfmetrics.registerFont(TTFont('Montserrat', str(ROOT/'assets/Montserrat-Regular.ttf')))
 pdfmetrics.registerFont(TTFont('Cormorant', str(ROOT/'assets/CormorantGaramond.ttf')))
 W,H=A4
@@ -85,29 +85,42 @@ c.setStrokeColor(gold); c.setLineWidth(.8); c.line(W/2-105,H-218,W/2+105,H-218)
 centered('Энергии',H-295,'Cormorant',56)
 centered('2–22',H-365,'Cormorant',69)
 centered('в матрице судьбы',H-408,'Cormorant',27)
+centered('Общий потенциал и самое главное о каждой энергии',H-457,'Montserrat',10)
+c.showPage()
+
+# Introduction
+page_base('О ГАЙДЕ',2)
+c.bookmarkPage('intro'); c.addOutlineEntry('О гайде','intro',0,False)
+c.setFillColor(muted); c.setFont('Montserrat',9); c.drawString(58,H-113,'ОБ ЭТОМ ГАЙДЕ')
+c.setFillColor(ink); c.setFont('Cormorant',36); c.drawString(58,H-158,'Общий потенциал')
+c.setFont('Cormorant',27); c.drawString(58,H-194,'и самое главное о каждой энергии')
+c.setStrokeColor(gold); c.setLineWidth(.7); c.line(58,H-216,W-58,H-216)
+y=H-245
+y=para('В этом гайде собраны общие значения энергий матрицы судьбы — самое важное об их потенциале, сильных сторонах и возможных трудностях.',58,y,W-116,intro_style)-18
+y=para('Вы узнаете о предназначении, деньгах и реализации, отношениях и главных ошибках каждой энергии. В конце каждого разбора — способы вывести энергию в плюс и её главный урок.',58,y,W-116,intro_style)
 c.showPage()
 
 # Contents
-page_base('СОДЕРЖАНИЕ',2)
+page_base('СОДЕРЖАНИЕ',3)
 c.bookmarkPage('contents'); c.addOutlineEntry('Содержание','contents',0,False)
 c.setFillColor(ink); c.setFont('Cormorant',32); c.drawString(58,H-98,'Содержание')
 c.setFillColor(muted); c.setFont('Montserrat',9); c.drawString(58,H-120,'Выберите энергию, чтобы перейти к её описанию')
 for idx,(n,title,*_) in enumerate(energies):
     y=H-151-idx*28.5
-    c.setFillColor(ink); c.setFont('Montserrat',10.5); c.drawString(60,y,title)
-    c.setFillColor(muted); c.drawRightString(W-60,y,str(3+idx*3))
+    c.setFillColor(ink); c.setFont('Montserrat',10.5); c.drawString(60,y,str(n))
+    c.setFillColor(muted); c.drawRightString(W-60,y,str(4+idx*3))
     c.setStrokeColor(HexColor('#d5d9d7')); c.setLineWidth(.3); c.line(60,y-7,W-60,y-7)
     c.linkAbsolute('',f'energy{n}',Rect=(55,y-7,W-55,y+16),thickness=0)
 c.showPage()
 
 for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
-    pg=3+idx*3
+    pg=4+idx*3
     short=f'{n} ЭНЕРГИЯ'
     page_base(short,pg)
-    c.bookmarkPage(f'energy{n}'); c.addOutlineEntry(title,f'energy{n}',0,False)
-    c.setFillColor(muted); c.setFont('Montserrat',9); c.drawString(58,H-92,f'ЭНЕРГИЯ  {n:02d}')
+    c.bookmarkPage(f'energy{n}'); c.addOutlineEntry(f'Энергия {n}',f'energy{n}',0,False)
+    c.setFillColor(muted); c.setFont('Montserrat',9); c.drawString(58,H-92,'ЭНЕРГИЯ')
     c.setFillColor(ink); c.setFont('Cormorant',31)
-    c.drawString(58,H-129,title.split(' — ',1)[1].capitalize())
+    c.drawString(58,H-129,str(n))
     y=H-152
     y=para(main,58,y,W-116,intro_style)-11
     y=para(intro,58,y,W-116,intro_style)-20
@@ -128,4 +141,4 @@ for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
     assert y>52,(n,'page3',y)
     c.showPage()
 c.save()
-print(f'Created {OUT}: {2+len(energies)*3} pages')
+print(f'Created {OUT}: {3+len(energies)*3} pages')
