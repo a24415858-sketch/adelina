@@ -12,7 +12,7 @@ from reportlab.lib.utils import ImageReader
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT/'assets/energies_2_22_user_text.md'
-OUT = ROOT/'documents/Energii_2_22_bez_soderzhaniya.pdf'
+OUT = ROOT/'documents/Energii_2_22_70_stranits.pdf'
 pdfmetrics.registerFont(TTFont('Montserrat', str(ROOT/'assets/Montserrat-Regular.ttf')))
 pdfmetrics.registerFont(TTFont('Cormorant', str(ROOT/'assets/CormorantGaramond.ttf')))
 W,H=A4
@@ -100,8 +100,10 @@ y=para('В этом гайде собраны общие значения эне
 y=para('Вы узнаете о предназначении, деньгах и реализации, отношениях и главных ошибках каждой энергии. В конце каждого разбора — способы вывести энергию в плюс и её главный урок.',58,y,W-116,intro_style)
 c.showPage()
 
-for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
-    pg=3+idx*3
+# Give the longest entries an extra page for a more spacious layout.
+expanded={2,3,16,20,21}
+pg=3
+for n,title,main,intro,sections,lesson in energies:
     short=f'{n} ЭНЕРГИЯ'
     page_base(short,pg)
     c.bookmarkPage(f'energy{n}'); c.addOutlineEntry(f'Энергия {n}',f'energy{n}',0,False)
@@ -111,21 +113,19 @@ for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
     y=H-152
     y=para(main,58,y,W-116,intro_style)-11
     y=para(intro,58,y,W-116,intro_style)-20
-    for sec in sections[:2]: y=section(*sec,y)
-    assert y>52,(n,'page1',y)
-    c.showPage()
-    page_base(short,pg+1)
-    y=H-78
-    for sec in sections[2:5]: y=section(*sec,y)
-    assert y>52,(n,'page2',y)
-    c.showPage()
-    page_base(short,pg+2)
-    y=H-78
-    for sec in sections[5:]: y=section(*sec,y)
-    y-=5
-    c.setStrokeColor(gold); c.setLineWidth(.7); c.line(58,y,W-58,y); y-=18
-    y=para(lesson,58,y,W-116,lesson_style)
-    assert y>52,(n,'page3',y)
-    c.showPage()
+    groups=([sections[:1],sections[1:3],sections[3:5],sections[5:]] if n in expanded
+            else [sections[:2],sections[2:5],sections[5:]])
+    for j,group in enumerate(groups):
+        if j:
+            c.showPage(); pg+=1
+            page_base(short,pg); y=H-78
+        for sec in group: y=section(*sec,y)
+        if j==len(groups)-1:
+            y-=5
+            c.setStrokeColor(gold); c.setLineWidth(.7); c.line(58,y,W-58,y); y-=18
+            y=para(lesson,58,y,W-116,lesson_style)
+        assert y>52,(n,j,y)
+    c.showPage(); pg+=1
 c.save()
-print(f'Created {OUT}: {2+len(energies)*3} pages')
+assert pg-1==70
+print(f'Created {OUT}: {pg-1} pages')
