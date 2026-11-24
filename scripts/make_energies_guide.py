@@ -12,7 +12,7 @@ from reportlab.lib.utils import ImageReader
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT/'assets/energies_2_22_user_text.md'
-OUT = ROOT/'documents/Energii_2_22_obshchiy_potencial.pdf'
+OUT = ROOT/'documents/Energii_2_22_bez_soderzhaniya.pdf'
 pdfmetrics.registerFont(TTFont('Montserrat', str(ROOT/'assets/Montserrat-Regular.ttf')))
 pdfmetrics.registerFont(TTFont('Cormorant', str(ROOT/'assets/CormorantGaramond.ttf')))
 W,H=A4
@@ -100,21 +100,8 @@ y=para('В этом гайде собраны общие значения эне
 y=para('Вы узнаете о предназначении, деньгах и реализации, отношениях и главных ошибках каждой энергии. В конце каждого разбора — способы вывести энергию в плюс и её главный урок.',58,y,W-116,intro_style)
 c.showPage()
 
-# Contents
-page_base('СОДЕРЖАНИЕ',3)
-c.bookmarkPage('contents'); c.addOutlineEntry('Содержание','contents',0,False)
-c.setFillColor(ink); c.setFont('Cormorant',32); c.drawString(58,H-98,'Содержание')
-c.setFillColor(muted); c.setFont('Montserrat',9); c.drawString(58,H-120,'Выберите энергию, чтобы перейти к её описанию')
-for idx,(n,title,*_) in enumerate(energies):
-    y=H-151-idx*28.5
-    c.setFillColor(ink); c.setFont('Montserrat',10.5); c.drawString(60,y,str(n))
-    c.setFillColor(muted); c.drawRightString(W-60,y,str(4+idx*3))
-    c.setStrokeColor(HexColor('#d5d9d7')); c.setLineWidth(.3); c.line(60,y-7,W-60,y-7)
-    c.linkAbsolute('',f'energy{n}',Rect=(55,y-7,W-55,y+16),thickness=0)
-c.showPage()
-
 for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
-    pg=4+idx*3
+    pg=3+idx*3
     short=f'{n} ЭНЕРГИЯ'
     page_base(short,pg)
     c.bookmarkPage(f'energy{n}'); c.addOutlineEntry(f'Энергия {n}',f'energy{n}',0,False)
@@ -141,4 +128,4 @@ for idx,(n,title,main,intro,sections,lesson) in enumerate(energies):
     assert y>52,(n,'page3',y)
     c.showPage()
 c.save()
-print(f'Created {OUT}: {3+len(energies)*3} pages')
+print(f'Created {OUT}: {2+len(energies)*3} pages')
