@@ -12,7 +12,7 @@ from reportlab.lib.utils import ImageReader
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT/'assets/energies_2_22_user_text.md'
-OUT = ROOT/'documents/Energii_2_22_70_stranits.pdf'
+OUT = ROOT/'documents/Energii_2_22_raschet_70.pdf'
 pdfmetrics.registerFont(TTFont('Montserrat', str(ROOT/'assets/Montserrat-Regular.ttf')))
 pdfmetrics.registerFont(TTFont('Cormorant', str(ROOT/'assets/CormorantGaramond.ttf')))
 W,H=A4
@@ -98,6 +98,15 @@ c.setStrokeColor(gold); c.setLineWidth(.7); c.line(58,H-216,W-58,H-216)
 y=H-245
 y=para('В этом гайде собраны общие значения энергий матрицы судьбы — самое важное об их потенциале, сильных сторонах и возможных трудностях.',58,y,W-116,intro_style)-18
 y=para('Вы узнаете о предназначении, деньгах и реализации, отношениях и главных ошибках каждой энергии. В конце каждого разбора — способы вывести энергию в плюс и её главный урок.',58,y,W-116,intro_style)
+y-=48
+c.setFillColor(ink); c.setFont('Cormorant',25); c.drawString(58,y,'Пример расчёта по дате рождения')
+y-=33
+y=para('Складываем цифры даты рождения. Например:',58,y,W-116,intro_style)
+y-=40
+c.setFillColor(ink); c.setFont('Cormorant',32); c.drawString(58,y,'2 + 1 + 2 + 2 = 7')
+y-=24
+y=para('В этом примере получаем 7 энергию.',58,y,W-116,intro_style)
+assert y>52
 c.showPage()
 
 # Give the longest entries an extra page for a more spacious layout.
